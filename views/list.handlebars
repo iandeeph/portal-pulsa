@@ -1,0 +1,102 @@
+{{#section 'title'}}
+    Daftar Trunk - Portal Pulsa Cermati
+{{/section}}
+<div class="row ml-30 mr-30">
+    <div class="col s12">
+        <span class="font-40">Daftar Nomor Terpakai</span>
+    </div>
+    <div class="col s12 mt-30 mb-20 home-table">
+        <table class="bordered">
+            <thead>
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    Trunk
+                </th>
+                <th>
+                    Nomor
+                </th>
+                <th>
+                    Nama Paket
+                </th>
+                <th>
+                    Host (Span)
+                </th>
+                <th>
+                    Harga Paket
+                </th>
+                <th>
+                    Cara Cek Pulsa
+                </th>
+                <th>
+                    Cara Aktivasi
+                </th>
+                <th>
+                    Cara Cek Kuota
+                </th>
+                <th>
+                    Cara Stop Paket
+                </th>
+                <th>
+                    Expired Date Paket
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+                <form id="formListGroup" action="" method="post" class="col s12">
+                    {{#each rowList}}
+                        <tr class="group">
+                            <td>
+                                {{numbyIndex @key}}
+                            </td>
+                            <td class="listGroup">
+                                <span>{{namaProvider}}</span>
+                                <input class="inputListGroup" id="{{namaProvider}}-{{@key}}" name="listGroup[{{@key}}][namaProvider]" type="text" placeholder="Nama Provider" value="{{namaProvider}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{noProvider}}</span>
+                                <input class="inputListGroup" id="{{noProvider}}-{{@key}}" name="listGroup[{{@key}}][noProvider]" type="text" placeholder="No Provider" value="{{noProvider}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{namaPaket}}</span>
+                                <input class="inputListGroup" id="{{namaPaket}}-{{@key}}" name="listGroup[{{@key}}][namaPaket]" type="text" placeholder="Nama Paket" value="{{namaPaket}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{joinText host span}}</span>
+                                <input class="inputListGroup" id="{{host}}-{{@key}}" name="listGroup[{{@key}}][host]"pe="text" placeholder="Host" value="{{host}}">
+                                <input class="inputListGroup" id="{{span}}-{{@key}}" name="listGroup[{{@key}}][span]"pe="text" placeholder="Span" value="{{span}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{hargaPaket}}</span>
+                                <input class="inputListGroup" id="{{hargaPaket}}-{{@key}}" name="listGroup[{{@key}}][hargaPaket]" type="text" placeholder="Harga Paket" value="{{hargaPaket}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{caraCekPulsa}}</span>
+                                <input class="inputListGroup" id="{{caraCekPulsa}}-{{@key}}" name="listGroup[{{@key}}][caraCekPulsa]" type="text" placeholder="Cara Cek Pulsa" value="{{caraCekPulsa}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{caraAktivasi}}</span>
+                                <input class="inputListGroup" id="{{caraAktivasi}}-{{@key}}" name="listGroup[{{@key}}][caraAktivasi]" type="text" placeholder="Cara Aktivasi" value="{{caraAktivasi}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{caraCekKuota}}</span>
+                                <input class="inputListGroup" id="{{caraCekKuota}}-{{@key}}" name="listGroup[{{@key}}][caraCekKuota]" type="text" placeholder="Cara Cek Kuota" value="{{caraCekKuota}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{caraStopPaket}}</span>
+                                <input class="inputListGroup" id="{{caraStopPaket}}-{{@key}}" name="listGroup[{{@key}}][caraStopPaket]" type="text" placeholder="Cara Stop Paket" value="{{caraStopPaket}}">
+                            </td>
+                            <td class="listGroup">
+                                <span>{{expDatePaket}}</span>
+                                <input class="inputListGroup" id="{{expDatePaket}}-{{@key}}" name="listGroup[{{@key}}][expDatePaket]" type="text" placeholder="Exp Date Paket" value="{{expDatePaket}}">
+                                <input name="listGroup[{{@key}}][ID]" type="hidden" value="{{idProvider}}">
+                            </td>
+                        </tr>
+                    {{/each}}
+                </form>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+{{#section 'title'}}
+    Home - Portal Pulsa Cermati
+{{/section}}
+<div class="container">
+    <div class="col s12">
+        <span class="font-40">Pulsa Cermati Hari Ini</span>
+    </div>
+    <div class="col s12 hide-on-large-only">
+        <span class="font-15">Pulsa Last Update : </span>
+    </div>
+    <div class="col s12 hide-on-large-only">
+        <span class="font-15">Paket Last Update : </span>
+    </div>
+    <div class="col s12 mt-30 mb-20 home-table">
+        <table class="bordered">
+            <thead>
+            <tr>
+                <th data-filed="no">
+                    No.
+                </th>
+                <th data-filed="provider">
+                    Provider
+                </th>
+                <th data-filed="noHP">
+                    Nomor
+                </th>
+                <th data-filed="sisaPulsa">
+                    Sisa Pulsa <br>
+                    <span class="font-15"></span><span class="hide-on-med-and-down">()</span>
+                </th>
+                <th data-filed="sisaPaket">
+                    Sisa Paket <br>
+                    <span class="font-15"></span><span class="hide-on-med-and-down">()</span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each rows}}
+                <tr>
+                    <td>
+                        {{numbyIndex @key}}
+                    </td>
+                    <td>
+                        {{namaProvider}}
+                    </td>
+                    <td>
+                        {{noProvider}}
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>

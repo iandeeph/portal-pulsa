@@ -1,0 +1,59 @@
+{{#section 'title'}}
+    Inbox - Portal Pulsa Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="col s12">
+        <span class="font-40">Pesan Masuk</span>
+    </div>
+    <div class="col s12 mt-30 mb-20 home-table hide-on-med-and-down">
+        <table class="bordered">
+            <thead>
+            <tr>
+                <th width="20%" data-field="time">Tanggal</th>
+                <th width="10%" data-field="sender">Pengirim</th>
+                <th width="70%" data-field="message">Pesan</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each inboxes}}
+                <tr class="hoverable">
+                    <td class="break-word">
+                        {{date}}
+                    </td>
+                    <td>
+                        {{number}}
+                    </td>
+                    <td class="break-word">
+                        {{TextDecoded}}
+                    </td>
+                </tr>
+            {{/each}}
+            <tbody>
+        </table>
+    </div>
+    <div class="col s12 hide-on-large-only">
+        <ul class="collection">
+            {{#each inboxes}}
+                <li class="collection-item">
+                    <div class="col s12">
+                        <div class="col s12 mb-20 font-normal">
+                            <div class="collection-content">
+                                <div class="col s12">
+                                    <span>{{date}}</span><br>
+                                    <span>{{number}}</span><br>
+                                </div>
+                                <div class="col s12">
+                                    <div class="divider"></div>
+                                    <p>
+                                        {{TextDecoded}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</div>

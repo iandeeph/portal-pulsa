@@ -1,0 +1,72 @@
+{{#section 'title'}}
+    Sentitems - Portal Pulsa Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="col s12">
+        <span class="font-40">Pesan Keluar</span>
+    </div>
+    <div class="col s12 mt-30 mb-20 home-table">
+        <table class="bordered">
+            <thead>
+                <tr>
+                    <th width="20%" data-field="time">Tanggal</th>
+                    <th width="8%" data-field="sender">Penerima</th>
+                    <th width="60%" data-field="message">Pesan</th>
+                    <th width="5%" data-field="message">Status</th>
+                    <th width="7%" data-field="message">Pengirim</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each rowSents}}
+                    <tr>
+                        <td class="break-word">
+                            {{date}}
+                        </td>
+                        <td>
+                            {{number}}
+                        </td>
+                        <td class="break-word">
+                            {{TextDecoded}}
+                        </td>
+                        <td>
+                            {{parseStatus status}}
+                        </td>
+                        <td>
+                            {{CreatorID}}
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col s12 hide-on-large-only">
+        <ul class="collection">
+            {{#each rowSents}}
+                <li class="collection-item">
+                    <div class="col s12">
+                        <div class="col s12 mb-20 font-normal">
+                            <div class="collection-content">
+                                <div class="col s12">
+                                    <span>{{date}}</span><br>
+                                    <span>{{number}}</span><br>
+                                </div>
+                                <div class="col s12">
+                                    <div class="divider"></div>
+                                    <p>
+                                        {{TextDecoded}}
+                                    </p>
+                                </div>
+                                <div class="col s12">
+                                    <div class="divider"></div>
+                                    <span>Pengirim: {{CreatorID}}</span> <br>
+                                    <span>Status : </span><span class="green-text">{{status}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</div>

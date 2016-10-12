@@ -1,0 +1,39 @@
+{{#section 'title'}}
+    Reload - Portal Pulsa Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="col s12">
+        <span class="font-40">Isi Pulsa/Paket</span>
+    </div>
+    <div class="row">
+        <form action="" method="post" class="col s12">
+            <div class="row">
+                <div class="col s12" id="trxBlock">
+                    <div class="input-field col s3">
+                        <input name="transactions[0][trx]" id="trx0" type="text" class="validate" required>
+                        <label for="trx0">Trx</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input name="transactions[0][phone]" id="phone0" type="text" class="validate" required>
+                        <label for="phone0">No. Telp</label>
+                    </div>
+                    <div class="col s3 mb-50">
+                        <a class="btn-floating btn waves-effect waves-light green darken-3" id="btnAddTrx" title="Tambah Transaksi"><i class="material-icons">add</i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <button class="waves-effect waves-light blue btn darken-3">Submit</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <span>{{message}}</span> <br>
+                    <span>{{results}}</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
