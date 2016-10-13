@@ -179,6 +179,11 @@ if (mysqli_num_rows($resultInbox) > 0) {
                         $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
                                                 SET pendingSaldo = '".$inboxSaldo."', pendingLastTrx = '".$TRX."', pendingLastDebet = '".$hargaTrx."'";
 
+                        //update report
+                        $updateReportByInbox = "UPDATE db_agen_pulsa.report 
+                                                SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$inboxSaldo."' 
+                                                WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
+
                         echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
                         if (mysqli_query($conn, $updateSaldoByInbox)) {
                             echo "[".$time_now_end."] saldo updated by inbox\r\n";
