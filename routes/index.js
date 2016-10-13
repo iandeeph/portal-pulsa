@@ -100,7 +100,7 @@ router.get('/paket', function(req, res, next) {
             var tanggal = {};
             var tanggalJam = {};
 
-            for (i = 1; i <= totalDay; i++) {
+            for (var i = 1; i <= totalDay; i++) {
                 tanggalJam[i] = {jam: jamCekPaket};
                 tanggal[i] = {tanggal: i, totalRow: totalJamCekPaket};
             }
@@ -140,40 +140,6 @@ router.get('/paket', function(req, res, next) {
                 layoutTemplate[rowPacket[key].namaProvider][moment(rowPacket[key].tanggal).format('D')][defJam] = {"paket": rowPacket[key].sisaPaket, "USSD": rowPacket[key].ussdReply};
             });
 
-            ////bikin template array kosong
-            //Object.keys(namaProvider).forEach(function(key) {
-            //    layoutTemplate[namaProvider[key].nama] = {"namaProvider": namaProvider[key].nama};
-            //    for (i = 1; i <= totalDay; i++) {
-            //        layoutTemplate[namaProvider[key].nama][i] = {};
-            //        jamCekPaket.forEach(function(jam) {
-            //            layoutTemplate[namaProvider[key].nama][i][jam] = {"paket": "-", "USSD": ""};
-            //        });
-            //    }
-            //});
-            //
-            //Object.keys(detailJam).forEach(function(key) {
-            //    for (i = 0; i < totalJamCekPaket - 1; i++){
-            //        if (moment(detailJam[key].Jam, 'HH:mm') >= moment(jamCekPaket[i], 'HH:mm') &&  moment(detailJam[key].Jam, 'HH:mm') < moment(jamCekPaket[i+1], 'HH:mm')){
-            //            defJam = jamCekPaket[i];
-            //        }else{
-            //            if (moment(detailJam[key].Jam, 'HH:mm') >= moment(jamCekPaket[totalJamCekPaket - 1], 'HH:mm') ){
-            //                defJam = jamCekPaket[totalJamCekPaket - 1];
-            //            }
-            //        }
-            //    }
-            //
-            //    layoutTemplate[detailJam[key].Provider][detailJam[key].Tanggal][defJam] = {"paket": detailJam[key].Paket, "USSD": detailJam[key].USSD};
-            //});
-
-            //console.log(layoutTemplate);
-
-            //console.log(
-            //    "Provider = "+ rowPacket[0].namaProvider+"\n",
-            //    "Tanggal = "+ moment(rowPacket[0].tanggal).format('D')+"\n",
-            //    "Jam = "+ moment(rowPacket[0].tanggal).format('HH:mm')+"\n",
-            //    "Sisa Paket = "+ rowPacket[0].sisaPaket+"\n",
-            //    "Ussd = "+ rowPacket[0].ussdReply+"\n"
-            //);
             res.render('sisa-paket', {
                 tanggalJam: tanggalJam,
                 totalJamCekPaket: totalJamCekPaket,
@@ -211,6 +177,7 @@ router.post('/reload', function(req,res){
     return bluebird.each(transactions, function (transaction) {
         var trx = transaction.trx;
         var phone = transaction.phone.replace(/\D/g,'');
+        var untuk = transaction.untuk;
         arrayQueryValue.push([NO_AGEN, trx +'.'+ phone +'.'+ PIN, 'agenpulsa', 'Default_No_Compression']);
 
         //sisaSaldo = utils.sisaSaldo();
@@ -219,17 +186,13 @@ router.post('/reload', function(req,res){
         console.log("PHONE IS = "+phone);
         return utils.findTrunk(phone)
             .then(function (result) {
-                console.log('TRUNK is', result);
                 return trunk = ((_.isUndefined(result) ==  false) ? result : "Nomor Baru");
             })
             .then(function (resultTrunk) {
                 return utils.sisaSaldo()
                     .then(function (saldo) {
                         dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-                        console.log('SALDO AKHIR is', saldo);
-                        console.log('TRUNK HERE is', resultTrunk);
-
-                        arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal']);
+                        arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
                     })
             })
             .catch(function(error){
@@ -247,7 +210,7 @@ router.post('/reload', function(req,res){
             "VALUES ?";
         console.log(queryString);
         var queryReport = "INSERT INTO db_agen_pulsa.report " +
-            "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses) " +
+            "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
             "VALUES ?";
         console.log(queryReport);
         return agenPulsaConn.query(queryString,[arrayQueryValue])
@@ -330,7 +293,7 @@ router.get('/pending', function(req, res, next) {
 
 /* GET report page. */
 router.get('/report', function(req, res, next) {
-    agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses " +
+    agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk " +
         "FROM report  " +
         "ORDER BY report.tanggal DESC " +
         "LIMIT 30").then(function(reports) {

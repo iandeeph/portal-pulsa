@@ -14,17 +14,25 @@ $(document).ready(function() {
     $('select').material_select();
     $("#btnAddTrx").click(function () {
         $("#trxBlock").append('' +
-            '<div class="input-field col s3 addedTrx'+ numFieldTrx +'">' +
+            '<div class="input-field col s2 addedTrx'+ numFieldTrx +'">' +
                 '<input name="transactions['+ numFieldTrx +'][trx]" id="trx'+ numFieldTrx +'" type="text" class="validate">' +
                 '<label for="trx'+ numFieldTrx +'">Trx</label>' +
             '</div>' +
-            '<div class="input-field col s6 addedTrx'+ numFieldTrx +'">' +
+            '<div class="input-field col s4 addedTrx'+ numFieldTrx +'">' +
                 '<input name="transactions['+ numFieldTrx +'][phone]" id="phone'+ numFieldTrx +'" type="text" class="validate">' +
                 '<label for="phone'+ numFieldTrx +'">No. Telp</label>' +
+            '</div> ' +
+            '<div class="input-field col s3 addedTrx'+ numFieldTrx +'"> ' +
+                '<select name="transactions['+ numFieldTrx +'][untuk]" id="untuk'+ numFieldTrx +'"> ' +
+                    '<option value="1">Kedoya</option> ' +
+                    '<option value="2">Biak</option> ' +
+                '</select> ' +
+                '<label>Untuk : </label> ' +
             '</div>' +
             '<div class="col s3 mb-50 addedTrx'+ numFieldTrx +'" name="addedTrx'+ numFieldTrx +'">' +
                 '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
             '</div>');
+        $('select').material_select();
         numFieldTrx++;
 
         $('[name^=btnRemTrx]').click(function () {

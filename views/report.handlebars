@@ -11,14 +11,15 @@
             <thead>
                 <tr class="hide-on-med-and-down">
                     <th width="15%" >Tanggal</th>
-                    <th width="10%" >Trunk</th>
+                    <th width="9%" >Trunk</th>
                     <th width="15%" >No. Trunk</th>
-                    <th width="10%" >Transaksi</th>
-                    <th width="10%" >Harga</th>
-                    <th width="10%" >Saldo Awal</th>
-                    <th width="10%" >Saldo Akhir</th>
-                    <th width="10%" >Status</th>
-                    <th width="10%" ">Proses</th>
+                    <th width="9%" >Transaksi</th>
+                    <th width="9%" >Harga</th>
+                    <th width="9%" >Saldo Awal</th>
+                    <th width="9%" >Saldo Akhir</th>
+                    <th width="9%" >Status</th>
+                    <th width="9%" >Proses</th>
+                    <th width="7%" >Untuk</th>
                 </tr>
                 <tr class="hide-on-large-only">
                     <th>Tanggal</th>
@@ -30,6 +31,7 @@
                     <th>Saldo Akhir</th>
                     <th>Status</th>
                     <th>Proses</th>
+                    <th>Untuk</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,6 +63,9 @@
                     </td>
                     <td>
                         {{proses}}
+                    </td>
+                    <td>
+                        {{parseUntuk untuk}}
                     </td>
                 </tr>
             {{/each}}

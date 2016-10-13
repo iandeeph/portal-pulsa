@@ -75,6 +75,18 @@ app.engine('handlebars', exphbs({
 
         joinText: function(a, b){
             return a+" ("+b+")";
+        },
+
+        parseUntuk: function(untuk){
+            var parse = "";
+            if (untuk == '1'){
+                parse = "Kedoya";
+            }else if (untuk == '2') {
+                parse = "Biak"
+            }else{
+                parse = "Other"
+            }
+            return parse;
         }
     }
 }));

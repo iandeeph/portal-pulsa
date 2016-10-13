@@ -10,13 +10,20 @@
         <form action="" method="post" class="col s12">
             <div class="row">
                 <div class="col s12" id="trxBlock">
-                    <div class="input-field col s3">
+                    <div class="input-field col s2">
                         <input name="transactions[0][trx]" id="trx0" type="text" class="validate" required>
                         <label for="trx0">Trx</label>
                     </div>
-                    <div class="input-field col s6">
+                    <div class="input-field col s4">
                         <input name="transactions[0][phone]" id="phone0" type="text" class="validate" required>
                         <label for="phone0">No. Telp</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <select name="transactions[0][untuk]" id="untuk0">
+                            <option value="1">Kedoya</option>
+                            <option value="2">Biak</option>
+                        </select>
+                        <label>Untuk : </label>
                     </div>
                     <div class="col s3 mb-50">
                         <a class="btn-floating btn waves-effect waves-light green darken-3" id="btnAddTrx" title="Tambah Transaksi"><i class="material-icons">add</i></a>
