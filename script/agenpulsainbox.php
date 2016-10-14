@@ -115,82 +115,78 @@ if (mysqli_num_rows($resultInbox) > 0) {
                     echo "[".$time_now_end."] report by inbox update failed.. Error : " . mysqli_error($conn) . "\r\n";
                 }
 
-            } else{
-                if (($lastSaldo - $hargaTrx) == $inboxSaldo) {
-                    //update saldos
-                    $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
-                                            SET saldo = '".$inboxSaldo."', lastTrx = '".$TRX."', lastDebet = '".$hargaTrx."'";
+            } else if (($lastSaldo - $hargaTrx) == $inboxSaldo) {
+                //update saldos
+                $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
+                                        SET saldo = '".$inboxSaldo."', lastTrx = '".$TRX."', lastDebet = '".$hargaTrx."'";
 
-                    echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
-                    if (mysqli_query($conn, $updateSaldoByInbox)) {
-                        echo "[".$time_now_end."] saldo updated by inbox\r\n";
-                    } else {
-                        echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
-                    }
-
-                    //update report
-                    $updateReportByInbox = "UPDATE db_agen_pulsa.report 
-                                            SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$inboxSaldo."'
-                                            WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
-
-                    echo "[".$time_now_end."] ".$updateReportByInbox."\r\n";
-                    if (mysqli_query($conn, $updateReportByInbox)) {
-                        echo "[".$time_now_end."] update by inbox\r\n";
-                    } else {
-                        echo "[".$time_now_end."] report by inbox update failed.. Error : " . mysqli_error($conn) . "\r\n";
-                    }
+                echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
+                if (mysqli_query($conn, $updateSaldoByInbox)) {
+                    echo "[".$time_now_end."] saldo updated by inbox\r\n";
                 } else {
-                    if (($inboxSaldo - $hargaTrx) == $pendingSaldo) {
-                        //update saldos
-                        $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
-                                                SET saldo = '".$pendingSaldo."', lastTrx = '".$pendingLastTrx."', lastDebet = '".$pendingLastDebet."'";
+                    echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
+                }
 
-                        echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
-                        if (mysqli_query($conn, $updateSaldoByInbox)) {
-                            echo "[".$time_now_end."] saldo updated by inbox\r\n";
-                        } else {
-                            echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
-                        }
+                //update report
+                $updateReportByInbox = "UPDATE db_agen_pulsa.report 
+                                        SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$inboxSaldo."'
+                                        WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
 
-                        //update pending saldos
-                        $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
-                                                SET pendingSaldo = '".$inboxSaldo."', pendingLastTrx = '".$TRX."', pendingLastDebet = '".$hargaTrx."'";
+                echo "[".$time_now_end."] ".$updateReportByInbox."\r\n";
+                if (mysqli_query($conn, $updateReportByInbox)) {
+                    echo "[".$time_now_end."] update by inbox\r\n";
+                } else {
+                    echo "[".$time_now_end."] report by inbox update failed.. Error : " . mysqli_error($conn) . "\r\n";
+                }
+            } else if (($inboxSaldo - $hargaTrx) == $pendingSaldo) {
+                //update saldos
+                $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
+                                        SET saldo = '".$pendingSaldo."', lastTrx = '".$pendingLastTrx."', lastDebet = '".$pendingLastDebet."'";
 
-                        echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
-                        if (mysqli_query($conn, $updateSaldoByInbox)) {
-                            echo "[".$time_now_end."] saldo updated by inbox\r\n";
-                        } else {
-                            echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
-                        }
+                echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
+                if (mysqli_query($conn, $updateSaldoByInbox)) {
+                    echo "[".$time_now_end."] saldo updated by inbox\r\n";
+                } else {
+                    echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
+                }
 
-                        //update report
-                        $updateReportByInbox = "UPDATE db_agen_pulsa.report 
-                                                SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$pendingSaldo."' 
-                                                WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
+                //update pending saldos
+                $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
+                                        SET pendingSaldo = '".$inboxSaldo."', pendingLastTrx = '".$TRX."', pendingLastDebet = '".$hargaTrx."'";
 
-                        echo "[".$time_now_end."] ".$updateReportByInbox."\r\n";
-                        if (mysqli_query($conn, $updateReportByInbox)) {
-                            echo "[".$time_now_end."] update by inbox\r\n";
-                        } else {
-                            echo "[".$time_now_end."] report by inbox update failed.. Error : " . mysqli_error($conn) . "\r\n";
-                        }
-                    }else{
-                        //update pending saldos
-                        $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
-                                                SET pendingSaldo = '".$inboxSaldo."', pendingLastTrx = '".$TRX."', pendingLastDebet = '".$hargaTrx."'";
+                echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
+                if (mysqli_query($conn, $updateSaldoByInbox)) {
+                    echo "[".$time_now_end."] saldo updated by inbox\r\n";
+                } else {
+                    echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
+                }
 
-                        //update report
-                        $updateReportByInbox = "UPDATE db_agen_pulsa.report 
-                                                SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$inboxSaldo."' 
-                                                WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
+                //update report
+                $updateReportByInbox = "UPDATE db_agen_pulsa.report 
+                                        SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$pendingSaldo."' 
+                                        WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
 
-                        echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
-                        if (mysqli_query($conn, $updateSaldoByInbox)) {
-                            echo "[".$time_now_end."] saldo updated by inbox\r\n";
-                        } else {
-                            echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
-                        }
-                    }
+                echo "[".$time_now_end."] ".$updateReportByInbox."\r\n";
+                if (mysqli_query($conn, $updateReportByInbox)) {
+                    echo "[".$time_now_end."] update by inbox\r\n";
+                } else {
+                    echo "[".$time_now_end."] report by inbox update failed.. Error : " . mysqli_error($conn) . "\r\n";
+                }
+            }else{
+                //update pending saldos
+                $updateSaldoByInbox = "UPDATE db_agen_pulsa.saldos 
+                                        SET pendingSaldo = '".$inboxSaldo."', pendingLastTrx = '".$TRX."', pendingLastDebet = '".$hargaTrx."'";
+
+                //update report
+                $updateReportByInbox = "UPDATE db_agen_pulsa.report 
+                                        SET trunk = '".$rowTrunk[$phone]."', harga = '".$hargaTrx."', status = '".$inboxStatus."', saldo_akhir = '".$inboxSaldo."' 
+                                        WHERE (status = 'pending' OR status = 'Sent') AND no = '".$phone."' AND trx = '".$TRX."' LIMIT 1";
+
+                echo "[".$time_now_end."] ".$updateSaldoByInbox."\r\n";
+                if (mysqli_query($conn, $updateSaldoByInbox)) {
+                    echo "[".$time_now_end."] saldo updated by inbox\r\n";
+                } else {
+                    echo "[".$time_now_end."] saldo updated by inbox failed.. Error : " . mysqli_error($conn) . "\r\n";
                 }
             }
         }
