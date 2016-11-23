@@ -5,8 +5,11 @@ var favicon         = require('serve-favicon');
 var logger          = require('morgan');
 var cookieParser    = require('cookie-parser');
 var bodyParser      = require('body-parser');
+var _               = require('lodash');
+var currencyFormatter = require('currency-formatter');
 
 var routes = require('./routes/index');
+var inventory = require('./routes/inventory');
 
 var app = express();
 
@@ -87,10 +90,15 @@ app.engine('handlebars', exphbs({
                 parse = "Other"
             }
             return parse;
+        },
+
+        sums: function(a, b){
+            return currencyFormatter.format(_.sumBy(a, b), { code: 'IDR' });
         }
     }
 }));
 app.set('view engine', 'handlebars');
+//app.set('view options', { layout: 'inventory' });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -101,6 +109,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/inventory', inventory);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

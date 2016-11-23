@@ -2,11 +2,12 @@ var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 var mysql = require('promise-mysql');
-var bluebird = require('bluebird');
+var Promise = require('bluebird');
 var moment = require('moment');
 var utils = require('../utils');
+var currencyFormatter = require('currency-formatter');
 
-var NO_AGEN = "083812175472";
+var NO_AGEN = "087778580085";
 var PIN = "0312";
 
 var dateNow = "";
@@ -110,8 +111,8 @@ router.get('/paket', function(req, res, next) {
             var defJam = "";
 
             Object.keys(rowNamaProvider).forEach(function(key) {
-                layoutTemplate[rowNamaProvider[key].namaProvider] = {"provider": rowNamaProvider[key].namaProvider};                for (i = 1; i <= totalDay; i++) {
-
+                layoutTemplate[rowNamaProvider[key].namaProvider] = {"provider": rowNamaProvider[key].namaProvider};
+                for (i = 1; i <= totalDay; i++) {
                     layoutTemplate[rowNamaProvider[key].namaProvider][i] = {};
                     jamCekPaket.forEach(function (jam) {
                         layoutTemplate[rowNamaProvider[key].namaProvider][i][jam] = {"paket": "-", "USSD": ""};
@@ -174,7 +175,7 @@ router.post('/reload', function(req,res){
 
     var transactions = Array.prototype.slice.call(req.body.transactions);
 
-    return bluebird.each(transactions, function (transaction) {
+    return Promise.each(transactions, function (transaction) {
         var trx = transaction.trx;
         var phone = transaction.phone.replace(/\D/g,'');
         var untuk = transaction.untuk;
@@ -296,7 +297,7 @@ router.get('/report', function(req, res, next) {
     agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk " +
         "FROM report  " +
         "ORDER BY report.tanggal DESC " +
-        "LIMIT 30").then(function(reports) {
+        "LIMIT 100").then(function(reports) {
         //console.log(reports);
         res.render('report', {
             title: 'Laporan Pemakaian Saldo',
@@ -306,6 +307,210 @@ router.get('/report', function(req, res, next) {
         //logs out the error
         console.error(error);
     });
+});
+
+/* GET monthly-report page. */
+router.get('/report-biak', function(req, res, next) {
+    var dataSent = [];
+    var dataInbox = [];
+    var tasks = [];
+    var bulan = {};
+    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
+        "where (TextDecoded like '%X10%' or TextDecoded like '%S10%' or TextDecoded like '%t20%' or TextDecoded like '%t10%' or TextDecoded like '%s20%' or TextDecoded like '%I20%') and status not like '%error%' and TextDecoded not like 'x100%' and TextDecoded not like 't100%' ")
+        .then(function(sentitems) {
+            return Promise.each(sentitems, function(sentitem){
+                var tanggal = sentitem.SendingDateTime;
+                var pesan = sentitem.TextDecoded;
+                var dotPos = pesan.indexOf(".");
+                var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+                var trx = pesan.substr(0, dotPos);
+                var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+
+                dataSent.push({
+                    tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),
+                    trx: trx,
+                    noTelp: noTelp,
+                    harga: '',
+                    status: ''
+                });
+            }).then(function(sentitemsResult) {
+                Object.keys(dataSent).forEach(function(key) {
+                    var sqlStr = "SELECT * FROM db_agen_pulsa.inbox " +
+                        "WHERE ReceivingDateTime BETWEEN '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 00:00:00") +"' AND '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 23:59:59") +"' " +
+                        "AND TextDecoded LIKE '%"+ dataSent[key].trx +" ke "+ dataSent[key].noTelp +"%' ";
+                    var task = agenPulsaConn.query(sqlStr)
+                    .then(function(inboxes) {
+                        return Promise.each(inboxes, function(inbox) {
+                            var tanggalInbox = inbox.ReceivingDateTime;
+                            var pesanInbox = inbox.TextDecoded;
+
+                            var hrgPos = pesanInbox.indexOf('Hrg=');
+                            var hrgPosToEnd = pesanInbox.substr(hrgPos + 4);
+                            var pos2 = hrgPosToEnd.indexOf(' ');
+
+                            var harga = currencyFormatter.format(hrgPosToEnd.substr(0, pos2), { code: 'IDR' });
+
+                            var pesanInbox1 = pesanInbox.substr(0, hrgPos - 1);
+                            var posTelp1 = pesanInbox1.lastIndexOf(" ");
+                            var noTelpInbox = pesanInbox1.substr(posTelp1 + 1);
+
+                            var pesanInbox2 = pesanInbox1.substr(posTelp1 - 6);
+                            var trxInbox = pesanInbox2.substr(0, 3);
+
+                            var pesanInbox3 = pesanInbox.substr(hrgPos);
+                            var posStatus = pesanInbox3.indexOf(" ") + 1;
+                            var trimInbox3 = pesanInbox3.substr(posStatus);
+                            var posStatus2 = trimInbox3.indexOf(" ");
+                            var status = trimInbox3.substr(0, posStatus2);
+
+                            if(status == 'SUKSES'){
+                                bulan[moment(tanggalInbox).format("MMMM")] = [];
+                                dataInbox.push({
+                                    tanggal: moment(tanggalInbox).format("YYYY-MM-DD HH:mm:ss"),
+                                    bulan: moment(tanggalInbox).format("MMMM"),
+                                    trx: trxInbox,
+                                    noTelp: noTelpInbox,
+                                    harga: harga,
+                                    numHarga: parseInt(hrgPosToEnd.substr(0, pos2)),
+                                    status: status
+                                });
+                            }
+                            return dataInbox;
+
+                        }).then(function(a){
+                        });
+                    });
+                    tasks.push(task);
+                });
+                return Promise.all(tasks);
+            }).then(function(b){
+                return Promise.each(dataInbox, function(resInbox) {
+                    Object.keys(bulan).forEach(function(key) {
+                        if(resInbox.bulan == key){
+                            bulan[key].push(resInbox);
+                            //console.log("same")
+                        }
+                    });
+                    return bulan;
+                }).then(function(c){
+                    console.log(bulan);
+                    res.render('report-biak', {
+
+                        title: 'Laporan Pemakaian Saldo Biak',
+                        reports: bulan,
+                        total : currencyFormatter.format(_.last(dataInbox).total, { code: 'IDR' })
+                    });
+                });
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
+});
+
+/* GET monthly-report page. */
+router.get('/report-kedoya', function(req, res, next) {
+    var dataSent = [];
+    var dataInbox = [];
+    var tasks = [];
+    var bulan = {};
+    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
+        "where TextDecoded not like 'X10%' " +
+        "and TextDecoded not like 'S10%' " +
+        "and TextDecoded not like 'T20%' " +
+        "and TextDecoded not like 'T10%' " +
+        "and TextDecoded not like 'i10%' " +
+        "and TextDecoded not like 's20%' " +
+        "and status not like '%error%'")
+        .then(function(sentitems) {
+            return Promise.each(sentitems, function(sentitem){
+                var tanggal = sentitem.SendingDateTime;
+                var pesan = sentitem.TextDecoded;
+                var dotPos = pesan.indexOf(".");
+                var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+                var trx = pesan.substr(0, dotPos);
+                var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+
+                dataSent.push({
+                    tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),
+                    trx: trx,
+                    noTelp: noTelp,
+                    harga: '',
+                    status: ''
+                });
+            }).then(function(sentitemsResult) {
+                Object.keys(dataSent).forEach(function(key) {
+                    var sqlStr = "SELECT * FROM db_agen_pulsa.inbox " +
+                        "WHERE ReceivingDateTime BETWEEN '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 00:00:00") +"' AND '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 23:59:59") +"' " +
+                        "AND TextDecoded LIKE '%"+ dataSent[key].trx +" ke "+ dataSent[key].noTelp +"%' ";
+                    var task = agenPulsaConn.query(sqlStr)
+                        .then(function(inboxes) {
+                            return Promise.each(inboxes, function(inbox) {
+                                var tanggalInbox = inbox.ReceivingDateTime;
+                                var pesanInbox = inbox.TextDecoded;
+
+                                var hrgPos = pesanInbox.indexOf('Hrg=');
+                                var hrgPosToEnd = pesanInbox.substr(hrgPos + 4);
+                                var pos2 = hrgPosToEnd.indexOf(' ');
+
+                                var harga = currencyFormatter.format(hrgPosToEnd.substr(0, pos2), { code: 'IDR' });
+
+                                var pesanInbox1 = pesanInbox.substr(0, hrgPos - 1);
+                                var posTelp1 = pesanInbox1.lastIndexOf(" ");
+                                var noTelpInbox = pesanInbox1.substr(posTelp1 + 1);
+
+                                var pesanInbox2 = pesanInbox1.substr(posTelp1 - 6);
+                                var trxInbox = pesanInbox2.substr(0, pesanInbox2.indexOf(" "));
+
+                                var pesanInbox3 = pesanInbox.substr(hrgPos);
+                                var posStatus = pesanInbox3.indexOf(" ") + 1;
+                                var trimInbox3 = pesanInbox3.substr(posStatus);
+                                var posStatus2 = trimInbox3.indexOf(" ");
+                                var status = trimInbox3.substr(0, posStatus2);
+
+                                if(status == 'SUKSES'){
+                                    bulan[moment(tanggalInbox).format("MMMM")] = [];
+                                    dataInbox.push({
+                                        tanggal: moment(tanggalInbox).format("YYYY-MM-DD HH:mm:ss"),
+                                        bulan: moment(tanggalInbox).format("MMMM"),
+                                        trx: trxInbox,
+                                        noTelp: noTelpInbox,
+                                        harga: harga,
+                                        numHarga: parseInt(hrgPosToEnd.substr(0, pos2)),
+                                        status: status
+                                    });
+                                }
+                                return dataInbox;
+
+                            }).then(function(a){
+                            });
+                        });
+                    tasks.push(task);
+                });
+                return Promise.all(tasks);
+            }).then(function(b){
+                return Promise.each(dataInbox, function(resInbox) {
+                    Object.keys(bulan).forEach(function(key) {
+                        if(resInbox.bulan == key){
+                            bulan[key].push(resInbox);
+                            //console.log("same")
+                        }
+                    });
+                    return bulan;
+                }).then(function(c){
+                    //console.log(bulan);
+                    res.render('report-kedoya', {
+
+                        title: 'Laporan Pemakaian Saldo Kedoya',
+                        reports: bulan,
+                        total : currencyFormatter.format(_.last(dataInbox).total, { code: 'IDR' })
+                    });
+                });
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
 });
 
 /* GET list numnber page. */

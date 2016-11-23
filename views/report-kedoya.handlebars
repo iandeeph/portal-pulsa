@@ -1,0 +1,71 @@
+{{#section 'title'}}
+    Monthly Reports - Portal Pulsa Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="col s12">
+        <span class="font-40">{{title}}</span>
+    </div>
+    {{#each reports}}
+
+        <div class="col s12">
+            <span class="font-20">{{@key}}</span>
+        </div>
+    <div class="col s12 mt-30 mb-20 home-table">
+        <table class="bordered">
+            <thead>
+            <tr class="hide-on-med-and-down">
+                <th>Tanggal</th>
+                <th>No. Telp</th>
+                <th>Transaksi</th>
+                <th>Harga</th>
+                <th>Status</th>
+                <th>Untuk</th>
+            </tr>
+            <tr class="hide-on-large-only">
+                <th>Tanggal</th>
+                <th>No. Telp</th>
+                <th>Transaksi</th>
+                <th>Harga</th>
+                <th>Status</th>
+                <th>Untuk</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each this}}
+                <tr>
+                    <td>
+                        {{this.tanggal}}
+                    </td>
+                    <td>
+                        {{this.noTelp}}
+                    </td>
+                    <td>
+                        {{this.trx}}
+                    </td>
+                    <td>
+                        {{this.harga}}
+                    </td>
+                    <td>
+                        {{this.status}}
+                    </td>
+                    <td>
+                        Kedoya
+                    </td>
+                </tr>
+            {{/each}}
+            <tr>
+                <td colspan="3">
+                    Total
+                </td>
+                <td>
+                    {{sums this 'numHarga'}}
+                </td>
+                <td colspan="2">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    {{/each}}
+</div>
+</div>
