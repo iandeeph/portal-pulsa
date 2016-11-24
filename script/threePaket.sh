@@ -36,7 +36,7 @@ do
 	threeSpan[$i]=${threeResult[$((x + 3))]};
 	
 	echo $(rm -rf ~/.ssh/known_hosts)
-	cekPaket=$(sshpass -padmin ssh -o StrictHostKeyChecking=no admin@${threeHost[$i]} -p12345 "asterisk -rx 'gsm send ussd ${threeSpan[$i]} *123*5*1*3#'")
+	cekPaket=$(sshpass -padmin ssh -o StrictHostKeyChecking=no admin@${threeHost[$i]} -p12345 "asterisk -rx 'gsm send ussd ${threeSpan[$i]} *123*2*2*4*3#'")
 	echo $cekPaket
 
 	textSlack="${threeNama[$i]} - ${threeNo[$i]} (Host : ${threeHost[$i]}, Span : ${threeSpan[$i]}) terblokir.. Pesan dari provider : $cekPaket"

@@ -942,3 +942,9 @@ div.valueLabel {
     text-decoration: underline;
 }
 
+.login-box{
+    border-radius: 20px 20px 20px 20px;
+    -moz-border-radius: 20px 20px 20px 20px;
+    -webkit-border-radius: 20px 20px 20px 20px;
+    border: 0px solid #000000;
+}

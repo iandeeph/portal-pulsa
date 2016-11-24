@@ -4,14 +4,18 @@ var path            = require('path');
 var favicon         = require('serve-favicon');
 var logger          = require('morgan');
 var cookieParser    = require('cookie-parser');
+var session         = require('express-session');
+var RedisStore      = require('connect-redis')(express);
 var bodyParser      = require('body-parser');
 var _               = require('lodash');
 var currencyFormatter = require('currency-formatter');
 
 var routes = require('./routes/index');
 var inventory = require('./routes/inventory');
+var login = require('./routes/login');
 
 var app = express();
+var currentHost = "1.1.1.254";
 
 // view engine setup
 //app.set('views', path.join(__dirname, 'views'));
@@ -107,9 +111,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.session({
+    store: new RedisStore({
+        host: currentHost,
+        port: 3000,
+        db: 1,
+        pass: 'RedisC3rmat'
+    }),
+    secret: 'Cermat123Hebat'
+}));
 
 app.use('/', routes);
 app.use('/inventory', inventory);
+app.use('/portal-auth', login);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
