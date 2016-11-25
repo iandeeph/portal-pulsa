@@ -22,8 +22,8 @@ PASSWORD="c3rmat"
 #===============================================================================
 #THREE
 #===============================================================================
-threeResult=($(mysql db_agen_pulsa -h$HOST -u$USER -p$PASSWORD -Bse "select namaProvider, noProvider, host, span from provider where namaProvider like 'ThreeAll%' order by length(namaProvider), namaProvider;"))
-cntThreeElm=4
+threeResult=($(mysql db_agen_pulsa -h$HOST -u$USER -p$PASSWORD -Bse "select namaProvider, noProvider, host, span, caraCekKuota from provider where namaProvider like 'ThreeAll%' order by length(namaProvider), namaProvider;"))
+cntThreeElm=5
 cntThree=${#threeResult[@]}
 threeSet=$(((cntThree+1)/cntThreeElm))
 
@@ -34,9 +34,10 @@ do
 	threeNo[$i]=${threeResult[$((x + 1))]};
 	threeHost[$i]=${threeResult[$((x + 2))]};
 	threeSpan[$i]=${threeResult[$((x + 3))]};
+	threeKodecek[$i]=${threeResult[$((x + 4))]};
 	
 	echo $(rm -rf ~/.ssh/known_hosts)
-	cekPaket=$(sshpass -padmin ssh -o StrictHostKeyChecking=no admin@${threeHost[$i]} -p12345 "asterisk -rx 'gsm send ussd ${threeSpan[$i]} *123*2*2*4*3#'")
+	cekPaket=$(sshpass -padmin ssh -o StrictHostKeyChecking=no admin@${threeHost[$i]} -p12345 "asterisk -rx 'gsm send ussd ${threeSpan[$i]} ${threeKodecek[$i]}'")
 	echo $cekPaket
 
 	textSlack="${threeNama[$i]} - ${threeNo[$i]} (Host : ${threeHost[$i]}, Span : ${threeSpan[$i]}) terblokir.. Pesan dari provider : $cekPaket"

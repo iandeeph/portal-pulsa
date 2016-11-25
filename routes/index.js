@@ -7,6 +7,8 @@ var moment = require('moment');
 var utils = require('../utils');
 var currencyFormatter = require('currency-formatter');
 
+var currentHost = "1.1.1.254";
+
 var NO_AGEN = "087778580085";
 var PIN = "0312";
 
@@ -50,15 +52,26 @@ handleDisconnect();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    agenPulsaConn.query('SELECT * FROM provider order by length(namaProvider), namaProvider').then(function(rows) {
-        //console.log(sents);
-        res.render('index',{
-            rows: rows
+    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+        console.log("Login Failed");
+        console.log("Username : " + req.session.username);
+        res.writeHead(301,
+            {Location: 'http://'+ currentHost +':3000/portal-auth'}
+        );
+        res.end();
+    }else {
+        console.error(req.session.username);
+
+        agenPulsaConn.query('SELECT * FROM provider order by length(namaProvider), namaProvider').then(function (rows) {
+            //console.log(sents);
+            res.render('index', {
+                rows: rows
+            });
+        }).catch(function (error) {
+            //logs out the error
+            console.error(error);
         });
-    }).catch(function(error){
-        //logs out the error
-        console.error(error);
-    });
+    }
 });
 
 /* GET sisa pulsa page. */
@@ -159,81 +172,99 @@ router.get('/paket', function(req, res, next) {
 
 /* GET isi paket page. */
 router.get('/reload', function(req, res, next) {
-    res.render('reload', {
-        title: 'Top Up Pulsa'
-    });
+    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+        console.log("Login Failed");
+        console.log("Username : " + req.session.username);
+        res.writeHead(301,
+            {Location: 'http://'+ currentHost +':3000/portal-auth'}
+        );
+        res.end();
+    }else {
+        res.render('reload', {
+            title: 'Top Up Pulsa'
+        });
+    }
 });
 
 //insert data
 router.post('/reload', function(req,res){
-    //console.log(req.body.transactions);
-    var arrayQueryValue = [];
-    var arrayReportValue = [];
-    var trunk = "";
-    var sisaSaldo = "on process";
-
-
-    var transactions = Array.prototype.slice.call(req.body.transactions);
-
-    return Promise.each(transactions, function (transaction) {
-        var trx = transaction.trx;
-        var phone = transaction.phone.replace(/\D/g,'');
-        var untuk = transaction.untuk;
-        arrayQueryValue.push([NO_AGEN, trx +'.'+ phone +'.'+ PIN, 'agenpulsa', 'Default_No_Compression']);
-
-        //sisaSaldo = utils.sisaSaldo();
-        //trunk = utils.findTrunk(transaction.phone);
-
-        console.log("PHONE IS = "+phone);
-        return utils.findTrunk(phone)
-            .then(function (result) {
-                return trunk = ((_.isUndefined(result) ==  false) ? result : "Nomor Baru");
-            })
-            .then(function (resultTrunk) {
-                return utils.sisaSaldo()
-                    .then(function (saldo) {
-                        dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-                        arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
-                    })
-            })
-            .catch(function(error){
-                //logs out the error
-                console.error(error);
-            });
-    }).then(function(){
-        console.log(
-            arrayQueryValue,
-            arrayReportValue //disini udah ga kosong lagi
+    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+        console.log("Login Failed");
+        console.log("Username : " + req.session.username);
+        res.writeHead(301,
+            {Location: 'http://'+ currentHost +':3000/portal-auth'}
         );
+        res.end();
+    }else {
+        //console.log(req.body.transactions);
+        var arrayQueryValue = [];
+        var arrayReportValue = [];
+        var trunk = "";
+        var sisaSaldo = "on process";
 
-        var queryString = "INSERT INTO db_agen_pulsa.outbox " +
-            "(DestinationNumber, TextDecoded, CreatorID, Coding) " +
-            "VALUES ?";
-        console.log(queryString);
-        var queryReport = "INSERT INTO db_agen_pulsa.report " +
-            "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
-            "VALUES ?";
-        console.log(queryReport);
-        return agenPulsaConn.query(queryString,[arrayQueryValue])
-            .then(function(results){
-                console.log(arrayReportValue);
 
-                return results;
-            }).then(function(results){
-                return agenPulsaConn.query(queryReport,[arrayReportValue])
-                    .then(function(results){
+        var transactions = Array.prototype.slice.call(req.body.transactions);
 
-                        console.log("Report Log..\n"+ arrayReportValue);
+        return Promise.each(transactions, function (transaction) {
+            var trx = transaction.trx;
+            var phone = transaction.phone.replace(/\D/g, '');
+            var untuk = transaction.untuk;
+            arrayQueryValue.push([NO_AGEN, trx + '.' + phone + '.' + PIN, 'agenpulsa', 'Default_No_Compression']);
 
-                        res.render('reload', {
-                            message: 'Transaksi berhasil disubmit..!!'
+            //sisaSaldo = utils.sisaSaldo();
+            //trunk = utils.findTrunk(transaction.phone);
+
+            console.log("PHONE IS = " + phone);
+            return utils.findTrunk(phone)
+                .then(function (result) {
+                    return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
+                })
+                .then(function (resultTrunk) {
+                    return utils.sisaSaldo()
+                        .then(function (saldo) {
+                            dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+                            arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                        })
+                })
+                .catch(function (error) {
+                    //logs out the error
+                    console.error(error);
+                });
+        }).then(function () {
+            console.log(
+                arrayQueryValue,
+                arrayReportValue //disini udah ga kosong lagi
+            );
+
+            var queryString = "INSERT INTO db_agen_pulsa.outbox " +
+                "(DestinationNumber, TextDecoded, CreatorID, Coding) " +
+                "VALUES ?";
+            console.log(queryString);
+            var queryReport = "INSERT INTO db_agen_pulsa.report " +
+                "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
+                "VALUES ?";
+            console.log(queryReport);
+            return agenPulsaConn.query(queryString, [arrayQueryValue])
+                .then(function (results) {
+                    console.log(arrayReportValue);
+
+                    return results;
+                }).then(function (results) {
+                    return agenPulsaConn.query(queryReport, [arrayReportValue])
+                        .then(function (results) {
+
+                            console.log("Report Log..\n" + arrayReportValue);
+
+                            res.render('reload', {
+                                message: 'Transaksi berhasil disubmit..!!'
+                            });
                         });
-                    });
-            }).catch(function(error){
-                //logs out the error
-                console.error(error);
-            });
-    });
+                }).catch(function (error) {
+                    //logs out the error
+                    console.error(error);
+                });
+        });
+    }
 });
 
 /* GET sentitems page. */

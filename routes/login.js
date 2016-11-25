@@ -1,11 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var _ = require('lodash');
-var mysql = require('promise-mysql');
-var Promise = require('bluebird');
-var moment = require('moment');
-var utils = require('../utils');
-var currencyFormatter = require('currency-formatter');
+var express         = require('express');
+var router          = express.Router();
+var _               = require('lodash');
+var mysql           = require('promise-mysql');
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
@@ -17,6 +13,7 @@ var db_config = {
 };
 
 var agenPulsaConn;
+var currentHost = "1.1.1.254";
 
 function handleDisconnect() {
     agenPulsaConn = mysql.createPool(db_config); // Recreate the connection, since
@@ -54,14 +51,17 @@ router.post('/', function(req, res, next) {
     var postPassword = req.body.login_password;
     agenPulsaConn.query('SELECT * FROM user').then(function(users) {
         var postResult = users.filter(function (user) { return ( user.name == postUsername && user.password == postPassword ) });
-        console.log(postResult);
+        console.log(postResult[0].name);
         if (_.isNull(postResult)){
             res.render('login',{
                 layout: 'login'
             });
         }else{
+            req.session.login       = 'loged';
+            req.session.username    = postResult[0].name;
+            req.session.privilege   = postResult[0].privilege;
             res.writeHead(301,
-                {Location: 'http://1.1.1.200:3000/'}
+                {Location: 'http://'+ currentHost +':3000/'}
             );
             res.end();
         }
