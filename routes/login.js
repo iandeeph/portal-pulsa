@@ -2,14 +2,15 @@ var express         = require('express');
 var router          = express.Router();
 var _               = require('lodash');
 var mysql           = require('promise-mysql');
+var Promise     = require('bluebird');
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
-    host         : '1.1.1.200',
+    host         : 'localhost',
     user         : 'root',
     password     : 'c3rmat',
     insecureAuth : 'true',
-    database     : 'db_agen_pulsa'
+    database     : 'dbinventory'
 };
 
 var agenPulsaConn;
@@ -49,23 +50,31 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
     var postUsername = req.body.login_username;
     var postPassword = req.body.login_password;
-    agenPulsaConn.query('SELECT * FROM user').then(function(users) {
-        var postResult = users.filter(function (user) { return ( user.name == postUsername && user.password == postPassword ) });
-        console.log(postResult[0].name);
-        if (_.isNull(postResult)){
-            res.render('login',{
-                layout: 'login'
-            });
-        }else{
-            req.session.login       = 'loged';
-            req.session.username    = postResult[0].name;
-            req.session.privilege   = postResult[0].privilege;
-            res.writeHead(301,
-                {Location: 'http://'+ currentHost +':3000/'}
-            );
-            res.end();
-        }
+    var loginPromise;
+    agenPulsaConn.query('SELECT * FROM admin').then(function(users) {
+        loginPromise = new Promise(function (resolve, reject) {
+            resolve(users.filter(function (user) { return ( user.username == postUsername && user.password == postPassword ) }));
+        });
 
+        loginPromise.then(function(loginItem) {
+            console.log(loginItem);
+            if (_.isNull(loginItem)){
+                res.render('login',{
+                    layout: 'login'
+                });
+            }else{
+                req.session.login       = 'loged';
+                req.session.username    = loginItem[0].name;
+                req.session.privilege   = loginItem[0].privilege;
+                res.writeHead(301,
+                    {Location: 'http://'+ currentHost +':3000/'}
+                );
+                res.end();
+            }
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
     }).catch(function(error){
         //logs out the error
         console.error(error);

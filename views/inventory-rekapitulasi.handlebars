@@ -1,0 +1,67 @@
+{{#section 'title'}}
+    Rekapitulasi - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="almost-full">
+    <div class="col s12">
+        <span class="font-40">Rekapitulasi</span>
+    </div>
+    <div class="col s12 mt-30 mb-20 home-table">
+        <table id="myTable" class="bordered">
+            <thead>
+            <tr>
+                <th width="4%">ID</th>
+                <th width="7%">Tgl Masuk</th>
+                <th width="7%">Tgl Keluar</th>
+                <th width="10%">Jenis</th>
+                <th width="12%">Nama</th>
+                <th width="10%">S/N</th>
+                <th width="6%">Status</th>
+                <th width="11%">User</th>
+                <th width="11%">Last User</th>
+                <th width="5%">Lokasi</th>
+                <th width="14%">Keterangan</th>
+            </tr>
+            </thead>
+            <tbody>
+                {{#each rows}}
+                    <tr>
+                        <td>
+                            {{id}}
+                        </td>
+                        <td>
+                            {{tgl_masuk}}
+                        </td>
+                        <td>
+                            {{tgl_keluar}}
+                        </td>
+                        <td>
+                            {{parseCategory jenis}}
+                        </td>
+                        <td>
+                            {{nama}}
+                        </td>
+                        <td>
+                            {{sn}}
+                        </td>
+                        <td>
+                            {{status}}
+                        </td>
+                        <td>
+                            {{joinTextUserInventory user userdivision}}
+                        </td>
+                        <td>
+                            {{joinTextUserInventory lastuser lastuserdivision}}
+                        </td>
+                        <td>
+                            {{parseLokasi lokasi}}
+                        </td>
+                        <td>
+                            {{keterangan}}
+                        </td>
+                    </tr>
+                {{/each}}
+            <tbody>
+        </table>
+    </div>
+</div>

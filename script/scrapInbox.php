@@ -111,7 +111,7 @@ function sendToSlack($room, $username, $message){
     return $result;
 }
 
-$nomorAgenPulsa = "083812175472";
+$nomorAgenPulsa = "081901250006";
 
 $time_now_start = date("Y/m/d%20H:i:s", strtotime("-5 minutes"));
 $time_now_end = date("Y/m/d%20H:i:s");
@@ -171,6 +171,10 @@ if (mysqli_num_rows($resultProvider) > 0) {
                 $packetRest     = preg_replace("/[A-Za-z]/", "", substr($msg, 24, 3));
 
                 echo "iserting\n";
+                echo $phone."\n";
+                echo $date."\n";
+                echo $msg."\n";
+                echo $packetRest."\n";
                 $inserts[] = "(
                     '".$namaProvider."',
                     '".$packetRest."',
@@ -178,6 +182,8 @@ if (mysqli_num_rows($resultProvider) > 0) {
                     '".mysqli_real_escape_string($conn, $msg)."'
                     )";
                 if (intval($packetRest) <= 20) {
+                    echo "".$namaProvider." sisa paket kurang dari 20 menit.. Sisa Paket : ".$packetRest." No :".$noProvider."\n";
+
                     $message = "".$namaProvider." sisa paket kurang dari 20 menit.. Sisa Paket : ".$packetRest." No :".$noProvider."";
                     sendToSlack("cermati_pulsa", "Three Officer", $message);
 
@@ -190,6 +196,7 @@ if (mysqli_num_rows($resultProvider) > 0) {
                             $text = "AN30.".$noProvider.".0312";
                             sendSms($nomorAgenPulsa, $text, $conn, $namaProvider, $noProvider, "AN30");
                             sendToSlack("agenpulsa", "Agenpulsa Officer", "SMS Dikirim, isi pulsa untuk ".$namaProvider.".. Isi pesan : AN30.".$noProvider.".0312");
+                            echo "agenpulsa", "Agenpulsa Officer", "SMS Dikirim, isi pulsa untuk ".$namaProvider.".. Isi pesan : AN30.".$noProvider.".0312 \n";
                         } else {
 
                             $startTime  = date("Y-m-d H:i:s", strtotime("-250 minutes"));
@@ -204,8 +211,9 @@ if (mysqli_num_rows($resultProvider) > 0) {
                                     $text = "AN30.2.".$noProvider.".0312";
                                     sendSms($nomorAgenPulsa, $text, $conn, $namaProvider, $noProvider, "AN30.2");
                                     sendToSlack("agenpulsa", "Agenpulsa Officer", "SMS Dikirim, isi pulsa untuk ".$namaProvider.".. Isi pesan : AN30.2.".$noProvider.".0312");
+                                    echo "agenpulsa", "Agenpulsa Officer", "SMS Dikirim, isi pulsa untuk ".$namaProvider.".. Isi pesan : AN30.2.".$noProvider.".0312 \n";
                                 }else{
-                                    echo "Double request,, ignoring..";
+                                    echo "Double request,, ignoring..\n";
                                 }
                             }
                         } 
@@ -213,7 +221,7 @@ if (mysqli_num_rows($resultProvider) > 0) {
                 }
             }
         }else{
-            echo "kosong\n";
+            echo "kosong\n\n";
         }
         $numNamaProvider++;
     }

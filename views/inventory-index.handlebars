@@ -1,0 +1,80 @@
+{{#section 'title'}}
+    Home - Portal Inventori Cermati
+{{/section}}
+<div class="container">
+    <div class="row mt-20">
+        <div class="col s12 center">
+            <span class="font-40">Inventory Action</span>
+        </div>
+    </div>
+    <div class="row mt-50">
+        <div class="col s12">
+            <div class="col s12 m6 l3 center">
+                <a href="/inventory/add-stock"><i class="material-icons large grey-text icon_action">add_box</i></a>
+                <br>
+                <p class="bold">New Stock</p>
+            </div>
+            <div class="col s12 m6 l3 center">
+                <a href="/inventory/new-hire"><i class="material-icons large grey-text icon_action">group_add</i></a>
+                <br>
+                <p class="bold">New Hire</p>
+            </div>
+            <div class="col s12 m6 l3 center">
+                <a href="#"><i class="material-icons large grey-text icon_action">directions_run</i></a>
+                <br>
+                <p class="bold">Member Resign</p>
+            </div>
+            <div class="col s12 m6 l3 center">
+                <a href="#"><i class="material-icons large grey-text icon_action">loop</i></a>
+                <br>
+                <p class="bold">Transfer Ownership</p>
+            </div>
+        </div>
+    </div>
+    <div class="border-bottom"></div>
+    <div class="row mt-20">
+        <div class="col s12 center">
+            <span class="font-40">Stock</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12 mt-30 mb-20 home-table">
+            <table class="bordered">
+                <thead>
+                <tr>
+                    <th width="10%">
+                        No.
+                    </th>
+                    <th width="50%">
+                        Kategori Item
+                    </th>
+                    <th width="20%">
+                        Total
+                    </th>
+                    <th width="20%">
+                        Stok
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each rowItems}}
+                    <tr>
+                        <td class="center-align">
+                            {{numbyIndex @key}}
+                        </td>
+                        <td>
+                            {{nama}}
+                        </td>
+                        <td class="center-align">
+                            {{total}}
+                        </td>
+                        <td class="center-align">
+                            {{stock}}
+                        </td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+{{#section 'title'}}
+    New Hire - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="row mt-20">
+        <div class="col s12">
+            <span class="font-40">New Hire</span>
+        </div>
+    </div>
+    <div class="border-bottom"></div>
+    <form name="new-hire" action="" method="post">
+        <div class="row">
+            <div class="col s12 mt-20 border-bottom">
+                <div class="col s12 grey lighten-3">
+                    <span class="font-17">User Detail</span>
+                </div>
+                <div class="file-field input-field col s12 m12 l6">
+                    <input id="userName" name="user[0][name]" type="text" class="validate" required>
+                    <label for="userName">Nama</label>
+                </div>
+                <div class=" input-field col s12 m12 l6">
+                    <select id="userLocation" name="user[0][location]" required>
+                        <option value="" disabled selected>Pilih Lokasi</option>
+                            <option value="1">Central Park</option>
+                            <option value="2">Kedoya</option>
+                    </select>
+                    <label>Lokasi</label>
+                </div>
+                <div class="col s12 m6 l6" id="positionBlock">
+                    <div id="0" class="userPositionSelect input-field col s12">
+                        <select id="userPosition" name="user[0][position]" required>
+                            <option value="" disabled selected>Pilih Jabatan</option>
+                            {{#each rowPosition}}
+                                <option value="{{position}}">{{position}}</option>
+                            {{/each}}
+                            <option value="0">Tambah Posisi ( + )</option>
+                        </select>
+                        <label>Jabatan</label>
+                    </div>
+                </div>
+                <div class="col s12 m6 l6" id="divisionBlock">
+                    <div id="0" class="userDivSelect input-field col s12">
+                        <select id="userDivision" name="user[0][division]" required>
+                            <option value="" disabled selected>Pilih Divisi</option>
+                            {{#each rowDivision}}
+                                <option value="{{division}}">{{division}}</option>
+                            {{/each}}
+                            <option value="0">Tambah Divisi ( + )</option>
+                        </select>
+                        <label>Divisi</label>
+                    </div>
+                </div>
+                <div class="col s12 grey lighten-3 mb-20">
+                    <span class="font-17">Inventory Detail</span>
+                </div>
+                {{#each rowCategory}}
+                    <div class="input-field col s12 m6 l3">
+                        <select id="userItem{{parseCategory @key}}" name="item[{{@key}}]">
+                            <option value="" disabled selected>Pilih {{parseCategory @key}}</option>
+                            {{#each this}}
+                                <option value="{{id}}">{{joinText id name}}</option>
+                            {{/each}}
+                        </select>
+                        <label>{{parseCategory @key}}</label>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="input-field col s12 mb-20">
+            <span class="font-20 green-text" id="message">{{message}}</span>
+            <button type="submit" name="addSubmitBtn" class="waves-effect waves-light btn green darken-3 right ml-10 mb-20">Submit</button>
+        </div>
+    </form>
+</div>

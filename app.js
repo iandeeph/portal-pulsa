@@ -7,6 +7,7 @@ var cookieParser    = require('cookie-parser');
 var session         = require('express-session');
 var bodyParser      = require('body-parser');
 var _               = require('lodash');
+var moment          = require('moment');
 var currencyFormatter = require('currency-formatter');
 
 var routes = require('./routes/index');
@@ -21,6 +22,13 @@ var app = express();
 app.engine('handlebars', exphbs({
     defaultLayout: 'main',
     helpers: {
+        fullDate: function (date) {
+            var parse = "";
+            parse = moment(date).format("YYYY-MM-DD");
+
+            return parse;
+        },
+
         numbyIndex: function (index) {
             var parse = "";
             parse = parseInt(index) + 1;
@@ -79,7 +87,23 @@ app.engine('handlebars', exphbs({
         },
 
         joinText: function(a, b){
-            return a+" ("+b+")";
+            var joinRes = "";
+            if(_.isEmpty(a) || _.isEmpty(b) ||  _.isNull(a) || _.isNull(b)){
+                joinRes = "";
+            }else{
+                joinRes = a+" ("+b+")";
+            }
+            return joinRes;
+        },
+
+        joinTextUserInventory: function(a, b){
+            var joinRes = "";
+            if(_.isEmpty(a) || _.isNull(a) || a == '0') {
+                joinRes = "Stock";
+            }else{
+                joinRes = a+" ("+b+")";
+            }
+            return joinRes;
         },
 
         parseUntuk: function(untuk){
@@ -94,8 +118,66 @@ app.engine('handlebars', exphbs({
             return parse;
         },
 
-        sums: function(a, b){
+        parsePrivilege: function(priv){
+            var parse = "";
+            if (priv == '1'){
+                parse = "Administrator";
+            }else if (priv == '2') {
+                parse = "User"
+            }else{
+                parse = "Error"
+            }
+            return parse;
+        },
+
+        parseLokasi: function(priv){
+            var parse = "";
+            if (priv == '1'){
+                parse = "CP";
+            }else if (priv == '2') {
+                parse = "Kedoya"
+            }else{
+                parse = "Error"
+            }
+            return parse;
+        },
+
+        nl2br: function(str, is_xhtml){
+            var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+            return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+        },
+
+        sums: function(a,b){
             return currencyFormatter.format(_.sumBy(a, b), { code: 'IDR' });
+        },
+
+        parseCategory: function (category) {
+            var parse = "";
+            switch (category) {
+                case '1':
+                    parse = "Laptop";
+                    break;
+                case '2':
+                    parse = "Charger Laptop";
+                    break;
+                case '3':
+                    parse = "Mouse";
+                    break;
+                case '4':
+                    parse = "Headset";
+                    break;
+                case '5':
+                    parse = "Keyboard";
+                    break;
+                case '6':
+                    parse = "Monitor";
+                    break;
+                default:
+                    parse = "error";
+                    break;
+            }
+
+            return parse;
         }
     }
 }));

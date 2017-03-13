@@ -18,7 +18,7 @@ var dateYear = "";
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
-    host         : '1.1.1.200',
+    host         : 'localhost',
     user         : 'root',
     password     : 'c3rmat',
     insecureAuth : 'true',
@@ -52,7 +52,7 @@ handleDisconnect();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Login Failed");
         console.log("Username : " + req.session.username);
         res.writeHead(301,
@@ -172,7 +172,7 @@ router.get('/paket', function(req, res, next) {
 
 /* GET isi paket page. */
 router.get('/reload', function(req, res, next) {
-    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Login Failed");
         console.log("Username : " + req.session.username);
         res.writeHead(301,
@@ -188,7 +188,7 @@ router.get('/reload', function(req, res, next) {
 
 //insert data
 router.post('/reload', function(req,res){
-    if(_.isUndefined(req.session.login) && req.session.login != 'loged'){
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Login Failed");
         console.log("Username : " + req.session.username);
         res.writeHead(301,
@@ -204,66 +204,76 @@ router.post('/reload', function(req,res){
 
 
         var transactions = Array.prototype.slice.call(req.body.transactions);
+        var num = 0;
 
-        return Promise.each(transactions, function (transaction) {
-            var trx = transaction.trx;
-            var phone = transaction.phone.replace(/\D/g, '');
-            var untuk = transaction.untuk;
-            arrayQueryValue.push([NO_AGEN, trx + '.' + phone + '.' + PIN, 'agenpulsa', 'Default_No_Compression']);
+        return agenPulsaConn.query("SELECT MAX(ID) as ID FROM sentitems LIMIT 1")
+            .then(function(newID) {
+                return Promise.each(transactions, function (transaction) {
+                    num++;
+                    console.log(newID[0].ID);
+                    var trx = transaction.trx;
+                    var phone = transaction.phone.replace(/\D/g, '');
+                    var untuk = transaction.untuk;
+                    arrayQueryValue.push([NO_AGEN, trx + '.' + phone + '.' + PIN, 'agenpulsa', (parseInt(newID[0].ID,10) + num), 'Default_No_Compression']);
 
-            //sisaSaldo = utils.sisaSaldo();
-            //trunk = utils.findTrunk(transaction.phone);
+                    //sisaSaldo = utils.sisaSaldo();
+                    //trunk = utils.findTrunk(transaction.phone);
 
-            console.log("PHONE IS = " + phone);
-            return utils.findTrunk(phone)
-                .then(function (result) {
-                    return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
-                })
-                .then(function (resultTrunk) {
-                    return utils.sisaSaldo()
-                        .then(function (saldo) {
-                            dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-                            arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                    console.log("PHONE IS = " + phone);
+                    return utils.findTrunk(phone)
+                        .then(function (result) {
+                            return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
                         })
-                })
-                .catch(function (error) {
-                    //logs out the error
-                    console.error(error);
-                });
-        }).then(function () {
-            console.log(
-                arrayQueryValue,
-                arrayReportValue //disini udah ga kosong lagi
-            );
-
-            var queryString = "INSERT INTO db_agen_pulsa.outbox " +
-                "(DestinationNumber, TextDecoded, CreatorID, Coding) " +
-                "VALUES ?";
-            console.log(queryString);
-            var queryReport = "INSERT INTO db_agen_pulsa.report " +
-                "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
-                "VALUES ?";
-            console.log(queryReport);
-            return agenPulsaConn.query(queryString, [arrayQueryValue])
-                .then(function (results) {
-                    console.log(arrayReportValue);
-
-                    return results;
-                }).then(function (results) {
-                    return agenPulsaConn.query(queryReport, [arrayReportValue])
-                        .then(function (results) {
-
-                            console.log("Report Log..\n" + arrayReportValue);
-
-                            res.render('reload', {
-                                message: 'Transaksi berhasil disubmit..!!'
-                            });
+                        .then(function (resultTrunk) {
+                            return utils.sisaSaldo()
+                                .then(function (saldo) {
+                                    dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+                                    arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                                })
+                        })
+                        .catch(function (error) {
+                            //logs out the error
+                            console.error(error);
                         });
-                }).catch(function (error) {
-                    //logs out the error
-                    console.error(error);
+                }).then(function () {
+                    console.log(
+                        arrayQueryValue,
+                        arrayReportValue //disini udah ga kosong lagi
+                    );
+                    var queryString = "INSERT INTO db_agen_pulsa.outbox " +
+                        "(DestinationNumber, TextDecoded, CreatorID, ID,  Coding) " +
+                        "VALUES ?";
+                    console.log(queryString);
+                    var queryReport = "INSERT INTO db_agen_pulsa.report " +
+                        "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
+                        "VALUES ?";
+                    console.log(queryReport);
+                    return agenPulsaConn.query(queryString, [arrayQueryValue])
+                        .then(function (results) {
+                            console.log(arrayReportValue);
+
+                            return results;
+                        }).then(function (results) {
+                            return agenPulsaConn.query(queryReport, [arrayReportValue])
+                                .then(function (results) {
+
+                                    console.log("Report Log..\n" + arrayReportValue);
+
+                                    res.render('reload', {
+                                        message: 'Transaksi berhasil disubmit..!!'
+                                    });
+                                });
+
+                        }).catch(function (error) {
+                            //logs out the error
+                            console.error(error);
+                        });
                 });
-        });
+            }).catch(function (error) {
+                //logs out the error
+                console.error(error);
+            });
+
     }
 });
 
@@ -346,16 +356,27 @@ router.get('/report-biak', function(req, res, next) {
     var dataInbox = [];
     var tasks = [];
     var bulan = {};
-    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
-        "where (TextDecoded like '%X10%' or TextDecoded like '%S10%' or TextDecoded like '%t20%' or TextDecoded like '%t10%' or TextDecoded like '%s20%' or TextDecoded like '%I20%') and status not like '%error%' and TextDecoded not like 'x100%' and TextDecoded not like 't100%' ")
-        .then(function(sentitems) {
-            return Promise.each(sentitems, function(sentitem){
-                var tanggal = sentitem.SendingDateTime;
-                var pesan = sentitem.TextDecoded;
-                var dotPos = pesan.indexOf(".");
-                var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
-                var trx = pesan.substr(0, dotPos);
-                var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+    //agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
+    //    "where (TextDecoded like '%X10%' or TextDecoded like '%S10%' or TextDecoded like '%t20%' or TextDecoded like '%t10%' or TextDecoded like '%s20%' or TextDecoded like '%I20%') and status not like '%error%' and TextDecoded not like 'x100%' and TextDecoded not like 't100%' ")
+    //    .then(function(sentitems) {
+    //        return Promise.each(sentitems, function(sentitem){
+    //            var tanggal = sentitem.SendingDateTime;
+    //            var pesan = sentitem.TextDecoded;
+    //            var dotPos = pesan.indexOf(".");
+    //            var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+    //            var trx = pesan.substr(0, dotPos);
+    //            var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+
+    //agenPulsaConn.query("SELECT * FROM db_agen_pulsa.report where untuk = '2' AND tanggal between '2016-10-01 00:00:00' AND '2016-11-30 23:59:59' and status not like 'failed' and status not like 'pending' ")
+    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.report where untuk = '2' AND tanggal between '2016-10-01 00:00:00' AND '2016-11-30 23:59:59' and status not like 'failed' ")
+        .then(function(reports) {
+            return Promise.each(reports, function(report){
+                var tanggal = report.tanggal;
+                //var pesan = report.TextDecoded;
+                //var dotPos = pesan.indexOf(".");
+                //var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+                var trx = report.trx;
+                var noTelp = report.no;
 
                 dataSent.push({
                     tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),
@@ -374,6 +395,7 @@ router.get('/report-biak', function(req, res, next) {
                         return Promise.each(inboxes, function(inbox) {
                             var tanggalInbox = inbox.ReceivingDateTime;
                             var pesanInbox = inbox.TextDecoded;
+
 
                             var hrgPos = pesanInbox.indexOf('Hrg=');
                             var hrgPosToEnd = pesanInbox.substr(hrgPos + 4);
@@ -440,27 +462,159 @@ router.get('/report-biak', function(req, res, next) {
 });
 
 /* GET monthly-report page. */
+router.get('/report-biak-new', function(req, res, next) {
+    var dataSent = [];
+    var dataInbox = [];
+    var tasks = [];
+    var bulan = {};
+    //agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
+    //    "where (TextDecoded like '%X10%' or TextDecoded like '%S10%' or TextDecoded like '%t20%' or TextDecoded like '%t10%' or TextDecoded like '%s20%' or TextDecoded like '%I20%') and status not like '%error%' and TextDecoded not like 'x100%' and TextDecoded not like 't100%' ")
+    //    .then(function(sentitems) {
+    //        return Promise.each(sentitems, function(sentitem){
+    //            var tanggal = sentitem.SendingDateTime;
+    //            var pesan = sentitem.TextDecoded;
+    //            var dotPos = pesan.indexOf(".");
+    //            var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+    //            var trx = pesan.substr(0, dotPos);
+    //            var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+
+    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.report where untuk = '2' AND tanggal between '2016-12-01 00:00:00' AND '2017-02-30 23:59:59' and status not like 'failed' ")
+        .then(function(reports) {
+            //console.log(reports);
+            return Promise.each(reports, function(report){
+                var tanggal = report.tanggal;
+                //var pesan = report.TextDecoded;
+                //var dotPos = pesan.indexOf(".");
+                //var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+                var trx = report.trx;
+                var noTelp = report.no;
+
+                dataSent.push({
+                    tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),
+                    trx: trx,
+                    noTelp: noTelp,
+                    harga: '',
+                    status: ''
+                });
+            }).then(function(sentitemsResult) {
+                Object.keys(dataSent).forEach(function(key) {
+                    var sqlStr = "SELECT * FROM db_agen_pulsa.inbox " +
+                        "WHERE ReceivingDateTime BETWEEN '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 00:00:00") +"' AND '"+ moment(dataSent[key].tanggal).format("YYYY-MM-DD 23:59:59") +"' " +
+                        "AND TextDecoded LIKE '%"+ dataSent[key].trx +"."+ dataSent[key].noTelp +" SUKSES%' ";
+                    //console.log(sqlStr);
+                    var task = agenPulsaConn.query(sqlStr)
+                        .then(function(inboxes) {
+                            return Promise.each(inboxes, function(inbox) {
+                                var tanggalInbox = inbox.ReceivingDateTime;
+                                var pesanInbox = inbox.TextDecoded; // @16/02/17 ID:UTD105848, I20.085886183419 SUKSES.SN:0216111512882778 .Hrg:20.975/Sal:5.813.032.
+                                //console.log(pesanInbox);
+                                //console.log(tanggalInbox);
+
+                                var hrgPos = pesanInbox.indexOf('Hrg:');
+                                var hrgPosToEnd = pesanInbox.substr(hrgPos + 4);
+                                var pos2 = hrgPosToEnd.indexOf('/');
+
+
+                                var harga = hrgPosToEnd.substr(0, pos2);
+                                //console.log(harga);
+
+                                var suksesPos = pesanInbox.indexOf('SUKSES'); // @16/02/17 ID:UTD105848, I20.085886183419 SUKSES
+                                var pesanInbox1 = pesanInbox.substr(0, suksesPos - 1); // @16/02/17 ID:UTD105848, I20.085886183419
+                                var posTelp1 = pesanInbox1.lastIndexOf(".");
+                                var noTelpInbox = pesanInbox1.substr(posTelp1 + 1);// 085886183419
+
+                                var pesanInbox2 = pesanInbox1.substr(0, posTelp1);// // @16/02/17 ID:UTD105848, I20
+                                var posTrx1 = pesanInbox2.lastIndexOf(" ");
+                                var trxInbox = pesanInbox2.substr(posTrx1 + 1);
+
+                                var status = pesanInbox.substr(suksesPos, 6);
+                                //console.log(status);
+
+                                if(status == 'SUKSES'){
+                                    bulan[moment(tanggalInbox).format("MMMM")] = [];
+                                    dataInbox.push({
+                                        tanggal: moment(tanggalInbox).format("YYYY-MM-DD HH:mm:ss"),
+                                        bulan: moment(tanggalInbox).format("MMMM"),
+                                        trx: trxInbox,
+                                        noTelp: noTelpInbox,
+                                        harga: "Rp. " + harga,
+                                        numHarga: parseInt(hrgPosToEnd.substr(0, pos2).replace(/\D/g,'')),
+                                        status: status
+                                    });
+                                }
+                                return dataInbox;
+                                //console.log(dataInbox);
+
+                            }).then(function(a){
+                            });
+                        });
+                    tasks.push(task);
+                });
+                return Promise.all(tasks);
+            }).then(function(b){
+                return Promise.each(dataInbox, function(resInbox) {
+                    Object.keys(bulan).forEach(function(key) {
+                        if(resInbox.bulan == key){
+                            bulan[key].push(resInbox);
+                            //console.log("same")
+                        }
+                    });
+                    return bulan;
+                }).then(function(c){
+                    console.log(bulan);
+                    res.render('report-biak', {
+
+                        title: 'Laporan Pemakaian Saldo Biak',
+                        reports: bulan
+                        //total : currencyFormatter.format(_.last(dataInbox).total, { code: 'IDR' })
+                    });
+                });
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
+});
+
+/* GET monthly-report page. */
 router.get('/report-kedoya', function(req, res, next) {
     var dataSent = [];
     var dataInbox = [];
     var tasks = [];
     var bulan = {};
-    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
-        "where TextDecoded not like 'X10%' " +
-        "and TextDecoded not like 'S10%' " +
-        "and TextDecoded not like 'T20%' " +
-        "and TextDecoded not like 'T10%' " +
-        "and TextDecoded not like 'i10%' " +
-        "and TextDecoded not like 's20%' " +
-        "and status not like '%error%'")
-        .then(function(sentitems) {
-            return Promise.each(sentitems, function(sentitem){
-                var tanggal = sentitem.SendingDateTime;
-                var pesan = sentitem.TextDecoded;
-                var dotPos = pesan.indexOf(".");
-                var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
-                var trx = pesan.substr(0, dotPos);
-                var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+    //agenPulsaConn.query("SELECT * FROM db_agen_pulsa.sentitems " +
+    //    "where TextDecoded not like 'X10%' " +
+    //    "and TextDecoded not like 'S10%' " +
+    //    "and TextDecoded not like 'T20%' " +
+    //    "and TextDecoded not like 'T10%' " +
+    //    "and TextDecoded not like 'i10%' " +
+    //    "and TextDecoded not like 's20%' " +
+    //    "and status not like '%error%'")
+    //    .then(function(sentitems) {
+    //        return Promise.each(sentitems, function(sentitem){
+    //            var tanggal = sentitem.SendingDateTime;
+    //            var pesan = sentitem.TextDecoded;
+    //            var dotPos = pesan.indexOf(".");
+    //            var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+    //            var trx = pesan.substr(0, dotPos);
+    //            var noTelp = subPesan.substr(0, subPesan.indexOf("."));
+    //
+    //            dataSent.push({
+    //                tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),
+    //                trx: trx,
+    //                noTelp: noTelp,
+    //                harga: '',
+    //                status: ''
+    //            });
+    agenPulsaConn.query("SELECT * FROM db_agen_pulsa.report where untuk = '1' AND tanggal between '2016-10-01 00:00:00' AND '2016-11-30 23:59:59' and status not like 'failed' and status not like 'pending' ")
+        .then(function(reports) {
+            return Promise.each(reports, function(report){
+                var tanggal = report.tanggal;
+                //var pesan = report.TextDecoded;
+                //var dotPos = pesan.indexOf(".");
+                //var subPesan = pesan.substr((dotPos + 1), (pesan.length - dotPos));
+                var trx = report.trx;
+                var noTelp = report.no;
 
                 dataSent.push({
                     tanggal: moment(tanggal).format("YYYY-MM-DD HH:mm:ss"),

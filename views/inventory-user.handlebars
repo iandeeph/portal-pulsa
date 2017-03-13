@@ -1,0 +1,59 @@
+{{#section 'title'}}
+    User - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="container mt-20">
+    <div class="col s12">
+        <span class="font-40">User</span>
+        <a href="#modalAddUser" class="waves-effect waves-light btn red accent-4 mt-20 right"><i class="material-icons">person_add</i></a>
+        <a id="delSelectionUserButton" href="#modalDelUser" class="waves-effect waves-light btn red accent-4 disabled mt-20 right mr-10" disabled><i class="material-icons left">delete</i>Delete</a>
+    </div>
+    <form action="" method="post" class="col s12">
+        <div class="col s12 mt-10 mb-20 home-table">
+            <table class="bordered">
+                <thead>
+                <tr>
+                    <th width="2%" class="center-align">
+                        <p>
+                            <input type="checkbox" id="checkAllUserSmall" />
+                            <label for="checkAllUserSmall"></label>
+                        </p>
+                    </th>
+                    <th width="31%">Nama</th>
+                    <th width="23%">Posisi</th>
+                    <th width="23%">Divisi</th>
+                    <th width="20%">Lokasi</th>
+                    <th width="3%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each rowUser}}
+                    <tr>
+                        <td>
+                            <p>
+                                <input type="checkbox" id="delSelect-{{iduser}}" />
+                                <label for="delSelect-{{iduser}}"></label>
+                            </p>
+                        </td>
+                        <td>
+                            {{nama}}
+                        </td>
+                        <td>
+                            {{posisi}}
+                        </td>
+                        <td>
+                            {{divisi}}
+                        </td>
+                        <td>
+                            {{parseLokasi lokasi}}
+                        </td>
+                        <td>
+                            <a href="#modalEditUser-{{id}}" class="btn-floating btn modal-trigger waves-effect waves-light btn green darken-2"><i class="material-icons edit">edit</i></a>
+                        </td>
+                    </tr>
+                {{/each}}
+                <tbody>
+            </table>
+        </div>
+    </form>
+</div>

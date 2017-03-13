@@ -5,32 +5,34 @@ day ='#tanggal' + day;
 var $tableParent;
 var $dayElement;
 var $dayPos;
+var numFieldTrx = 1;
+
 $(document).ready(function() {
-    var numFieldTrx = 1;
     $(".button-collapse").sideNav();
     $('.collapsible').collapsible(
         {hover: true}
     );
     $('select').material_select();
+    $('.tooltipped').tooltip({delay: 50});
     $("#btnAddTrx").click(function () {
         $("#trxBlock").append('' +
             '<div class="input-field col s2 addedTrx'+ numFieldTrx +'">' +
-                '<input name="transactions['+ numFieldTrx +'][trx]" id="trx'+ numFieldTrx +'" type="text" class="validate">' +
-                '<label for="trx'+ numFieldTrx +'">Trx</label>' +
+            '<input name="transactions['+ numFieldTrx +'][trx]" id="trx'+ numFieldTrx +'" type="text" class="validate">' +
+            '<label for="trx'+ numFieldTrx +'">Trx</label>' +
             '</div>' +
             '<div class="input-field col s4 addedTrx'+ numFieldTrx +'">' +
-                '<input name="transactions['+ numFieldTrx +'][phone]" id="phone'+ numFieldTrx +'" type="text" class="validate">' +
-                '<label for="phone'+ numFieldTrx +'">No. Telp</label>' +
+            '<input name="transactions['+ numFieldTrx +'][phone]" id="phone'+ numFieldTrx +'" type="text" class="validate">' +
+            '<label for="phone'+ numFieldTrx +'">No. Telp</label>' +
             '</div> ' +
             '<div class="input-field col s3 addedTrx'+ numFieldTrx +'"> ' +
-                '<select name="transactions['+ numFieldTrx +'][untuk]" id="untuk'+ numFieldTrx +'"> ' +
-                    '<option value="1">Kedoya</option> ' +
-                    '<option value="2">Biak</option> ' +
-                '</select> ' +
-                '<label>Untuk : </label> ' +
+            '<select name="transactions['+ numFieldTrx +'][untuk]" id="untuk'+ numFieldTrx +'"> ' +
+            '<option value="1">Kedoya</option> ' +
+            '<option value="2">Biak</option> ' +
+            '</select> ' +
+            '<label>Untuk : </label> ' +
             '</div>' +
             '<div class="col s3 mb-50 addedTrx'+ numFieldTrx +'" name="addedTrx'+ numFieldTrx +'">' +
-                '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
+            '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
             '</div>');
         $('select').material_select();
         numFieldTrx++;
@@ -38,6 +40,69 @@ $(document).ready(function() {
         $('[name^=btnRemTrx]').click(function () {
             var numToRem = $(this).attr('id');
             var elm = ".addedTrx"+ numToRem;
+
+            console.log(elm);
+
+            $(elm).remove();
+        });
+    });
+
+    $("#addItemButton").click(function () {
+        $("#addItemBlock").append('' +
+            '<div class="col s12 mt-20 border-bottom addItemContent'+ numFieldTrx +'">' +
+            '<div class="input-field col s12 m6 l6">' +
+            '<select id="addCategory'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][category]" required>' +
+            '<option value="" disabled selected>Pilih Jenis Item</option>' +
+            '<option value="1">Laptop</option>' +
+            '<option value="2">Charger Laptop</option>' +
+            '<option value="3">Mouse</option>' +
+            '<option value="4">Headset</option>' +
+            '<option value="5">Keyboard</option>' +
+            '<option value="6">Monitor</option>' +
+            '</select>' +
+            '<label>Jenis Item</label>' +
+            '</div>' +
+            '<div class="file-field input-field col s12 m6 l6 mb-10">' +
+            '<input id="addId'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][id]" type="text" class="validate" required>' +
+            '<label for="addId'+ numFieldTrx +'">ID Inventory</label>' +
+            '</div>' +
+            '<div class="file-field input-field col s12">' +
+            '<input id="addName'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][name]" type="text" class="validate" required>' +
+            '<label for="addName'+ numFieldTrx +'">Nama</label>' +
+            '</div>' +
+            '<div class="file-field input-field col s12 m6 l6">' +
+            '<input id="addSN'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][sn]" type="text" class="validate" required>' +
+            '<label for="addSN'+ numFieldTrx +'">Serial Number</label>' +
+            '</div>' +
+            '<div class="input-field col s12 m6 l6">' +
+            '<select id="addLokasi'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][lokasi]" required>' +
+            '<option value="" disabled selected>Lokasi</option>' +
+            '<option value="1">Central Park</option>' +
+            '<option value="2">Kedoya</option>' +
+            '</select>' +
+            '<label>Jenis Item</label>' +
+            '</div>' +
+            '<div class="input-field col s12">' +
+            '<textarea id="addNote'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][note]" class="materialize-textarea"></textarea>' +
+            '<label for="addNote'+ numFieldTrx +'">Catatan</label>' +
+            '</div>' +
+            '<div class="input-field col s12 mb-20">' +
+            '<a name="duplicateButton'+ numFieldTrx +'" id="'+ numFieldTrx +'" class="waves-effect waves-light btn orange darken-3 right ml-10">Duplicate</a>' +
+            '<a name="remItemButton'+ numFieldTrx +'" id="'+ numFieldTrx +'" class="waves-effect waves-light btn red right disabled" disabled>Remove</a>' +
+            '</div>' +
+            '</div>' +
+            '');
+        $('select').material_select();
+        numFieldTrx++;
+
+        var remBtn = $('[name^=remItemButton]');
+
+        remBtn.removeClass('disabled');
+        remBtn.removeAttr('disabled');
+
+        remBtn.click(function () {
+            var numToRem = $(this).attr('id');
+            var elm = ".addItemContent"+ numToRem;
 
             console.log(elm);
 
@@ -101,4 +166,183 @@ $(document).ready(function() {
     inputListGroup.change(function(){
         $('#formListGroup').submit();
     });
+
+    $(function(){
+        $("#myTable").tablesorter();
+    });
+
+    $('.icon_action').hover(function(){
+        $(this).removeClass('grey-text');
+        $(this).addClass('grey-text text-lighten-3');
+    }, function(){
+        $(this).removeClass('grey-text text-lighten-3');
+        $(this).addClass('grey-text');
+    });
+
+    if ($('#message').val() == "New Hire berhasil ditambah, item updated.."){
+        window.location = '/inventory/new-hire';
+    }
+});
+
+$(document).on('click', '.duplicateButton', function() {
+    var idDuplicateBtn = $(this).attr('id');
+    var id      = $('#addId'+ idDuplicateBtn).val();
+    var jenis   = $('#addCategory'+ idDuplicateBtn).val();
+    var nama    = $('#addName'+ idDuplicateBtn).val();
+    var SN      = $('#addSN'+ idDuplicateBtn).val();
+    var lokasi  = $('#addLokasi'+ idDuplicateBtn).val();
+    var note    = $('#addNote'+ idDuplicateBtn).val();
+
+    console.log(idDuplicateBtn);
+    console.log(id);
+    console.log(jenis);
+    console.log(nama);
+    console.log(SN);
+    console.log(lokasi);
+    console.log(note);
+
+    var selDefault = "selected";
+    var selLaptop = "";
+    var selCharger = "";
+    var selMouse = "";
+    var selHS = "";
+    var selKeyBoard = "";
+    var selMonitor = "";
+    var selCP = "";
+    var selKedoya ="";
+
+    switch (jenis) {
+        case "1":
+            selLaptop = "selected";
+            break;
+        case "2":
+            selCharger = "selected";
+            break;
+        case "3":
+            selMouse = "selected";
+            break;
+        case "4":
+            selHS = "selected";
+            break;
+        case "5":
+            selKeyBoard = "selected";
+            break;
+        case "6":
+            selMonitor = "selected";
+            break;
+        default:
+            selDefault = "selected";
+    }
+
+    switch (lokasi) {
+        case "1":
+            selCP = "selected";
+            break;
+        case "2":
+            selKedoya = "selected";
+            break;
+        default:
+            selDefault = "selected";
+    }
+
+    var appendStr = '' +
+        '<div class="col s12 mt-20 border-bottom addItemContent'+ numFieldTrx +'">' +
+        '<div class="input-field col s12 m6 l6">' +
+        '<select id="addCategory'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][category]" required>' +
+        '<option '+ selDefault +' value="" disabled>Pilih Jenis Item</option>' +
+        '<option '+ selLaptop +' value="1">Laptop</option>' +
+        '<option '+ selCharger +' value="2">Charger Laptop</option>' +
+        '<option '+ selMouse +' value="3">Mouse</option>' +
+        '<option '+ selHS +' value="4">Headset</option>' +
+        '<option '+ selKeyBoard +' value="5">Keyboard</option>' +
+        '<option '+ selMonitor +' value="6">Monitor</option>' +
+        '</select>' +
+        '<label>Jenis Item</label>' +
+        '</div>' +
+        '<div class="file-field input-field col s12 m6 l6 mb-10">' +
+        '<input id="addId'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][id]" type="text" class="validate" value="'+ id +'" required>' +
+        '<label for="addId'+ numFieldTrx +'" class="active">ID Inventory</label>' +
+        '</div>' +
+        '<div class="file-field input-field col s12">' +
+        '<input id="addName'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][name]" type="text" class="validate" value ="' + nama +'" required>' +
+        '<label for="addName'+ numFieldTrx +'" class="active">Nama</label>' +
+        '</div>' +
+        '<div class="file-field input-field col s12 m6 l6">' +
+        '<input id="addSN'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][sn]" type="text" class="validate" value="'+ SN +'" required>' +
+        '<label for="addSN'+ numFieldTrx +'" class="active">Serial Number</label>' +
+        '</div>' +
+        '<div class="input-field col s12 m6 l6">' +
+        '<select id="addLokasi'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][lokasi]" required>' +
+        '<option '+ selDefault +' value="" disabled>Lokasi</option>' +
+        '<option '+ selCP +' value="1">Central Park</option>' +
+        '<option '+ selKedoya +' value="2">Kedoya</option>' +
+        '</select>' +
+        '<label>Jenis Item</label>' +
+        '</div>' +
+        '<div class="input-field col s12">' +
+        '<textarea id="addNote'+ numFieldTrx +'" name="adds['+ numFieldTrx +'][note]" class="materialize-textarea">'+ note +'</textarea>' +
+        '<label for="addNote'+ numFieldTrx +'" class="active">Catatan</label>' +
+        '</div>' +
+        '<div class="input-field col s12 mb-20">' +
+        '<a name="duplicateButton'+ numFieldTrx +'" id="'+ numFieldTrx +'" class="duplicateButton waves-effect waves-light btn orange darken-3 right ml-10">Duplicate</a>' +
+        '<a name="remItemButton'+ numFieldTrx +'" id="'+ numFieldTrx +'" class="waves-effect waves-light btn red right disabled" disabled>Remove</a>' +
+        '</div>' +
+        '</div>' +
+        '';
+
+    console.log(appendStr);
+
+    $("#addItemBlock").append(appendStr);
+
+    numFieldTrx++;
+
+    var remBtn = $('[name^=remItemButton]');
+
+    remBtn.removeClass('disabled');
+    remBtn.removeAttr('disabled');
+
+    remBtn.click(function () {
+        var numToRem = $(this).attr('id');
+        var elm = ".addItemContent"+ numToRem;
+
+        console.log(elm);
+
+        $(elm).remove();
+    });
+
+    $('select').material_select();
+});
+
+$(document).on('change', '[id=userPosition]', function() {
+    var selectValue = $(this).val();
+    var parentId = $(this).closest('.input-field').attr('id');
+    if (selectValue == 0){
+        $('#positionBlock').append('' +
+            ' <div id="0" class="userPositionText file-field input-field col s12 mb-20"> ' +
+                '<input id="userPositionText" name="user[0][position]" type="text" class="validate mb-10" required> ' +
+                '<label for="userPositionText">Jabatan</label> ' +
+                '<a name="cancelInputPosition" id=0 class="waves-effect btn red waves-light left">Cancel</a> ' +
+            '</div>' +
+            '');
+        $('.userPositionSelect').remove();
+    }
+});
+$(document).on('change', '[id=userDivision]', function() {
+    var selectValue = $(this).val();
+    var parentId = $(this).closest('.input-field').attr('id');
+    console.log(selectValue);
+    if (selectValue == 0){
+        $('#divisionBlock').append('' +
+            '<div id="0" class="userDivText file-field input-field col s12 mb-20">' +
+                '<input id="userDivisionText" name="user[0][division]" type="text" class="validate mb-10" required>' +
+                '<label for="userDivisionText">Divisi</label>' +
+                '<a name="cancelInputDivision" id=0 class="waves-effect btn red waves-light left">Cancel</a>' +
+            '</div>' +
+            '');
+        $('.userDivSelect').remove();
+    }
+});
+
+$(document).on('click', '[name=cancelInputDivision], [name=cancelInputPosition]', function() {
+    window.location = '/inventory/new-hire';
 });
