@@ -178,6 +178,17 @@ app.engine('handlebars', exphbs({
             }
 
             return parse;
+        },
+
+        zeroOrNumber: function (number) {
+            var parse = "";
+            if(_.isNull(number)){
+                parse = 0;
+            }else{
+                parse = number;
+            }
+
+            return parse;
         }
     }
 }));

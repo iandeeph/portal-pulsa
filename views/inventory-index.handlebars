@@ -25,7 +25,7 @@
                 <p class="bold">Member Resign</p>
             </div>
             <div class="col s12 m6 l3 center">
-                <a href="#"><i class="material-icons large grey-text icon_action">loop</i></a>
+                <a href="/inventory/transfer"><i class="material-icons large grey-text icon_action">loop</i></a>
                 <br>
                 <p class="bold">Transfer Ownership</p>
             </div>
@@ -66,10 +66,10 @@
                             {{nama}}
                         </td>
                         <td class="center-align">
-                            {{total}}
+                            {{zeroOrNumber total}}
                         </td>
                         <td class="center-align">
-                            {{stock}}
+                            {{zeroOrNumber stock}}
                         </td>
                     </tr>
                 {{/each}}

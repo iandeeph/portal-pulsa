@@ -14,7 +14,6 @@ var db_config = {
 };
 
 var agenPulsaConn;
-var currentHost = "1.1.1.254";
 
 function handleDisconnect() {
     agenPulsaConn = mysql.createPool(db_config); // Recreate the connection, since
@@ -50,24 +49,25 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
     var postUsername = req.body.login_username;
     var postPassword = req.body.login_password;
-    var loginPromise;
     agenPulsaConn.query('SELECT * FROM admin').then(function(users) {
-        loginPromise = new Promise(function (resolve, reject) {
-            resolve(users.filter(function (user) { return ( user.username == postUsername && user.password == postPassword ) }));
+        console.log(users);
+        var loginPromise = new Promise(function (resolve, reject) {
+            resolve(_.filter(users, {'username' : postUsername , 'password' : postPassword}));
         });
 
         loginPromise.then(function(loginItem) {
             console.log(loginItem);
-            if (_.isNull(loginItem)){
+            if (_.isEmpty(loginItem)){
                 res.render('login',{
-                    layout: 'login'
+                    layout: 'login',
+                    message : 'Username atau Password Salah..!!'
                 });
             }else{
                 req.session.login       = 'loged';
                 req.session.username    = loginItem[0].name;
                 req.session.privilege   = loginItem[0].privilege;
                 res.writeHead(301,
-                    {Location: 'http://'+ currentHost +':3000/'}
+                    {Location: '/'}
                 );
                 res.end();
             }

@@ -242,7 +242,6 @@ router.post('/add-stock-csv', uploading.single('csvFiles'), function(req, res, n
             .on('error', reject);
     });
 
-
     itemsPromise.then(function(itemsCsv) {
         console.log(itemsCsv);
         return Promise.each(itemsCsv, function (item) {
@@ -424,6 +423,85 @@ router.get('/new-hire', function(req, res, next) {
 });
 
 /* GET inventory new item page. */
+router.post('/new-hire-csv',  uploading.single('csvFilesUser'), function(req, res, next) {
+    var dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    var arrayUserQueryValue = [];
+    var arrayUserLogValue = [];
+    var insertUserString;
+    var csvData = [];
+
+    var stream = csv({
+        raw: false,     // do not decode to utf-8 strings
+        separator: ',', // specify optional cell separator
+        quote: '"',     // specify optional quote character
+        escape: '"',    // specify optional escape character (defaults to quote value)
+        newline: '\n',  // specify a newline character
+        headers: ['name', 'position', 'division', 'location'] // Specifing the headers
+    });
+
+    var postFileData = req.file || {};
+
+    csvFilePath = _.get(postFileData, 'path');
+
+    var itemsPromise = new Promise(function (resolve, reject) {
+        return fs.createReadStream(csvFilePath)
+            .pipe(stream)
+            .on('data', function(csvrow) {
+                csvData.push(csvrow);
+            })
+            .on('end',function() {
+                resolve (Array.prototype.slice.call(csvData));
+                fs.unlink(csvFilePath);
+            })
+            .on('error', reject);
+    });
+
+    itemsPromise.then(function(posts) {
+        return Promise.each(posts, function (post) {
+            var userName        = post.name;
+            var userPosition    = post.position;
+            var userDivision    = post.division;
+            var userLocation    = post.location;
+
+            arrayUserQueryValue.push([userName, userPosition, userDivision, userLocation]);
+
+            var valueLogStr = '' +
+                'User Name : ' + userName + ' ' +
+                'Position : ' + userPosition + ' ' +
+                'Division : ' + userDivision + ' ' +
+                'Location : ' + userLocation + ' ';
+
+            console.log(valueLogStr);
+            //log: date, admin. action, value, iditem
+            arrayUserLogValue.push([dateNow, 'admin', 'Add New User', valueLogStr, '0']);
+        }).then(function () {
+            insertUserString = "INSERT INTO dbinventory.user " +
+                "(name, position, division, location) " +
+                "VALUES ?";
+            console.log(arrayUserQueryValue);
+            return inventoryConn.query(insertUserString,[arrayUserQueryValue])
+                .then(function () {
+                    console.log(arrayUserLogValue);
+                    var logString = "INSERT INTO dbinventory.log " +
+                        "(date, user, action, value, iditem) " +
+                        "VALUES ?";
+
+                    return inventoryConn.query(logString,[arrayUserLogValue])
+                        .then(function () {
+                            res.render('inventory-new-hire', {
+                                layout: 'inventory',
+                                message: 'New Hire berhasil ditambah..'
+                            });
+                        });
+                });
+        });
+    }).catch(function (error) {
+        //logs out the error
+        console.error(error);
+    });
+});
+
+/* GET inventory new item page. */
 router.post('/new-hire', function(req, res, next) {
     var arrayUserQueryValue = [];
     var arrayItemQueryValue = [];
@@ -495,6 +573,13 @@ router.post('/new-hire', function(req, res, next) {
     }).catch(function (error) {
         //logs out the error
         console.error(error);
+    });
+});
+
+/* GET inventory transfer ownership page. */
+router.get('/transfer', function(req, res, next) {
+    res.render('inventory-transfer', {
+        layout: 'inventory'
     });
 });
 

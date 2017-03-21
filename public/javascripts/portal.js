@@ -167,9 +167,13 @@ $(document).ready(function() {
         $('#formListGroup').submit();
     });
 
-    $(function(){
-        $("#myTable").tablesorter();
-    });
+    var myTable = "#myTable";
+    if ($(myTable).length > 0){
+        $(function(){
+            $("#myTable").tablesorter();
+        });
+    }
+
 
     $('.icon_action').hover(function(){
         $(this).removeClass('grey-text');
@@ -179,9 +183,13 @@ $(document).ready(function() {
         $(this).addClass('grey-text');
     });
 
-    if ($('#message').val() == "New Hire berhasil ditambah, item updated.."){
-        window.location = '/inventory/new-hire';
-    }
+    setTimeout(
+        function()
+        {
+            if ($('#message').text().indexOf('New Hire berhasil ditambah') == 0){
+                window.location = '/inventory/new-hire';
+            }
+        }, 2000);
 });
 
 $(document).on('click', '.duplicateButton', function() {

@@ -7,9 +7,7 @@ var moment = require('moment');
 var utils = require('../utils');
 var currencyFormatter = require('currency-formatter');
 
-var currentHost = "1.1.1.254";
-
-var NO_AGEN = "087778580085";
+var NO_AGEN = "081514344606";
 var PIN = "0312";
 
 var dateNow = "";
@@ -56,7 +54,7 @@ router.get('/', function(req, res, next) {
         console.log("Login Failed");
         console.log("Username : " + req.session.username);
         res.writeHead(301,
-            {Location: 'http://'+ currentHost +':3000/portal-auth'}
+            {Location: '/portal-auth'}
         );
         res.end();
     }else {
@@ -172,30 +170,25 @@ router.get('/paket', function(req, res, next) {
 
 /* GET isi paket page. */
 router.get('/reload', function(req, res, next) {
-    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
-        console.log("Login Failed");
-        console.log("Username : " + req.session.username);
-        res.writeHead(301,
-            {Location: 'http://'+ currentHost +':3000/portal-auth'}
-        );
-        res.end();
-    }else {
+    var login = req.session.login || "";
+    if(login == 'loged'){
         res.render('reload', {
             title: 'Top Up Pulsa'
         });
+    }else {
+        console.log("Login Failed");
+        console.log("Username : " + req.session.username);
+        res.writeHead(301,
+            {Location: '/portal-auth'}
+        );
+        res.end();
     }
 });
 
 //insert data
 router.post('/reload', function(req,res){
-    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
-        console.log("Login Failed");
-        console.log("Username : " + req.session.username);
-        res.writeHead(301,
-            {Location: 'http://'+ currentHost +':3000/portal-auth'}
-        );
-        res.end();
-    }else {
+    var login = req.session.login || "";
+    if(login == 'loged'){
         //console.log(req.body.transactions);
         var arrayQueryValue = [];
         var arrayReportValue = [];
@@ -273,7 +266,13 @@ router.post('/reload', function(req,res){
                 //logs out the error
                 console.error(error);
             });
-
+    }else {
+        console.log("Login Failed");
+        console.log("Username : " + req.session.username);
+        res.writeHead(301,
+            {Location: '/portal-auth'}
+        );
+        res.end();
     }
 });
 

@@ -6,9 +6,34 @@
     <div class="row mt-20">
         <div class="col s12">
             <span class="font-40">New Hire</span>
+            <a class="waves-effect waves-light white right black-text mt-20 btn" onclick="javascript:window.location = '/inventory';"><i class="material-icons black-text left">arrow_back</i>Kembali</a>
         </div>
     </div>
     <div class="border-bottom"></div>
+    <form enctype="multipart/form-data" method="POST" action="/inventory/new-hire-csv">
+    <div class="col s12 mt-20 border-bottom pdb-50">
+        <div class="col s12 grey lighten-3">
+            <span class="font-17">Upload CSV (User Only)</span>
+        </div>
+        <div class="file-field input-field">
+            <div class="btn blue" title="Format (Tanpa Header) : &#010;Nama, Jabatan, Divisi, Lokasi&#010;&#010;Lokasi :&#010;1 = Central Park&#010;2 = Kedoya">
+                <span>Upload</span>
+                <input type="file" name="csvFilesUser">
+            </div>
+            <div class="file-path-wrapper">
+                <input class="file-path validate" type="text" name="csvNameUser" placeholder="Format (Tanpa Header) : Nama, Jabatan, Divisi, Lokasi" required>
+            </div>
+        </div>
+        <div class="input-field col s12">
+            <button type="submit" name="addSubmitUserBtn" class="mb-20 waves-effect waves-light btn green darken-3 right ml-10">Submit</button>
+        </div>
+    </div>
+</form>
+    <div class="row mt-20">
+        <div class="col s12 center">
+            <span class="font-17">-- or --</span>
+        </div>
+    </div>
     <form name="new-hire" action="" method="post">
         <div class="row">
             <div class="col s12 mt-20 border-bottom">

@@ -1,0 +1,62 @@
+{{#section 'title'}}
+    Transfer Ownership - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="row mt-20">
+        <div class="col s12 valign">
+            <span class="font-40">Transfer Ownership</span>
+            <a class="waves-effect waves-light white right black-text mt-20 btn" onclick="javascript:window.location = '/inventory';"><i class="material-icons black-text left">arrow_back</i>Kembali</a>
+        </div>
+    </div>
+    <div class="border-bottom"></div>
+    <form action="" method="post">
+        <div class="row mt-20">
+            <div class="col s12 border-bottom">
+                <div class="input-field col s12 mt-20">
+                    <select id="fromUserSelect" name="transfers[0][fromuser]" required>
+                        <option value="" disabled selected>Pilih User</option>
+                        <option value="1">Laptop</option>
+                        <option value="2">Charger Laptop</option>
+                        <option value="3">Mouse</option>
+                        <option value="4">Headset</option>
+                        <option value="5">Keyboard</option>
+                        <option value="6">Monitor</option>
+                    </select>
+                    <label>User</label>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="input-field col s12 m5 l5">
+                            <select id="fromItem0" name="transfers[0][item]" required>
+                                <option value="" disabled selected>Pilih Item</option>
+                                <option value="1">Central Park</option>
+                                <option value="2">Kedoya</option>
+                            </select>
+                            <label>Item</label>
+                        </div>
+                        <div class="col s12 m1 l1 center">
+                            <a class="mt-10 btn-floating btn disabled" disabled=""><i class="material-icons">fast_forward</i></a>
+                        </div>
+                        <div class="input-field col s12 m5 l5">
+                            <select id="toUser0" name="transfers[0][touser]" required>
+                                <option value="" disabled selected>Pilih User</option>
+                                <option value="1">Central Park</option>
+                                <option value="2">Kedoya</option>
+                            </select>
+                            <label>User</label>
+                        </div>
+                        <div class="col s12 m1 l1 center">
+                            <a class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="input-field col s12 mb-20">
+            <span class="font-20 green-text">{{message}}</span>
+            <button type="submit" name="addSubmitBtn" class="waves-effect waves-light btn green darken-3 right ml-10">Submit</button>
+            <a id="addItemButton" class="waves-effect waves-light btn blue right ml-10">Add More</a>
+        </div>
+    </form>
+</div>

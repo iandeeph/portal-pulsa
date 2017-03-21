@@ -4,8 +4,9 @@
 {{error}}
 <div class="container">
     <div class="row mt-20">
-        <div class="col s12">
+        <div class="col s12 valign">
             <span class="font-40">New Stock</span>
+            <a class="waves-effect waves-light white right black-text mt-20 btn" onclick="javascript:window.location = '/inventory';"><i class="material-icons black-text left">arrow_back</i>Kembali</a>
         </div>
     </div>
     <div class="border-bottom"></div>
@@ -20,7 +21,7 @@
                     <input type="file" name="csvFiles">
                 </div>
                 <div class="file-path-wrapper">
-                    <input class="file-path validate" type="text" name="csvName" required>
+                    <input class="file-path validate" type="text" name="csvName" placeholder="Format (Tanpa Header) : Jenis Item, ID Inventory, Deskripsi Item, Serial Number, Lokasi, Catatan" required>
                 </div>
             </div>
             <div class="input-field col s12">
