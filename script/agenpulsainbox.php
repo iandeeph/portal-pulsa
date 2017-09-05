@@ -16,7 +16,7 @@ function sendToSlack($room, $icon, $username, $message){
                   "text"          =>  $message,
                   "icon_emoji"    =>  $icon
         ));
-    $slackHook = "https://hooks.slack.com/services/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";
+    $slackHook = "https://hooks.slack.com/services/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";
              
     $c = curl_init();
     curl_setopt($c, CURLOPT_URL, $slackHook);

@@ -66,14 +66,14 @@ function curl_get_contents($url){
 }
 
 function sendToSlack($room, $username, $message){
-    $icon       = ":pikapika:"; 
+    $icon       = ":exclamation:"; 
     $data       = "payload=" . json_encode(array(         
                   "username"      =>  $username,
                   "channel"       =>  "#{$room}",
                   "text"          =>  $message,
                   "icon_emoji"    =>  $icon
         ));
-    $slackHook = "https://hooks.slack.com/services/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";
+    $slackHook = "https://hooks.slack.com/services/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";
              
     $c = curl_init();
     curl_setopt($c, CURLOPT_URL, $slackHook);
@@ -162,7 +162,7 @@ if (mysqli_num_rows($resultProvider) > 0) {
                     $date           = trim($data[$item][3]->nodeValue);
                     $msg            = trim($data[$item][4]->nodeValue);
                     // Sisa Bonus Nelpon Bulanan ke Semua Operator:371 menit ke Semua Operator berlaku sd 28/01/2017 09:58.Pakai terus Indosat Ooredoo-mu &Nikmati kebebasan ber
-                    $packetRest = preg_replace("/\D/", "", substr($msg, 44, 4));
+                    $packetRest = preg_replace("/\D/", "", substr($msg, 58, 4));
 
                     echo "iserting\n";
                     echo $phone."\n";

@@ -1,0 +1,50 @@
+{{#section 'title'}}
+    Export Items - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="row mt-20">
+        <div class="col s12 valign">
+            <span class="font-40">Export Items</span>
+            <a class="waves-effect waves-light white right black-text mt-20 btn" onclick="javascript:window.location = '/inventory';"><i class="material-icons black-text left">arrow_back</i>Kembali</a>
+        </div>
+    </div>
+    <div class="border-bottom"></div>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col s12 mt-50" id="trxBlock">
+                <div class="input-field col s5">
+                    <select name="export[0][item]" id="item0">
+                        <option value="" disabled selected>Pilih Item</option>
+                        {{#each rowInventory}}
+                            <option value="{{id}}">{{id}} - {{parseCategory idcategory}} ({{name}})</option>
+                        {{/each}}
+                    </select>
+                    <label>ID Inventory : </label>
+                </div>
+                <div class="input-field col s6">
+                    <select name="export[0][user]" id="user0">
+                        <option value="" disabled selected>Pilih User</option>
+                        {{#each rowUser}}
+                            <option value="{{iduser}}">{{name}} - {{position}}</option>
+                        {{/each}}
+                    </select>
+                    <label>User : </label>
+                </div>
+                <div class="col s1 mb-50">
+                    <a class="btn-floating btn waves-effect waves-light green darken-3" id="btnAddInvTrx" title="Tambah Transaksi"><i class="material-icons">add</i></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <button class="waves-effect waves-light blue btn darken-3">Submit</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <span class="font-20 green-text" id="message">{{message}}</span>
+            </div>
+        </div>
+    </form>
+</div>

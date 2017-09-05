@@ -83,8 +83,8 @@ do
 				attempt=$((attempt + 1))
 				if [[ $attempt == $maxAttempt ]]; then
 					sisaPaketTelkomsel[$numSimpati]=0
-					slackText="Cek Paket Gagal... ${ISATNama[$i]} - ${ISATNo[$i]}.. Lokasi : ${ISATHost[$i]} - ${ISATSpan[$i]}\n$cekPaket"
-					curl -X POST -H 'Content-type: application/json' --data '{"text": "```'"$slackText"'```", "channel": "'"$CHANNEL"'", "username": "'"$USERNAME"'", "icon_emoji": "'"$ICONEMOJI"'"}' https://hooks.slack.com/services/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
+					# slackText="Cek Paket Gagal... ${ISATNama[$i]} - ${ISATNo[$i]}.. Lokasi : ${ISATHost[$i]} - ${ISATSpan[$i]}\n$cekPaket"
+					# curl -X POST -H 'Content-type: application/json' --data '{"text": "```'"$slackText"'```", "channel": "'"$CHANNEL"'", "username": "'"$USERNAME"'", "icon_emoji": "'"$ICONEMOJI"'"}' https://hooks.slack.com/services/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
 				fi
 			fi
 		done

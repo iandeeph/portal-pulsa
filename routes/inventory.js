@@ -8,6 +8,7 @@ var multer      = require('multer');
 var csv         = require('csv-parser');
 var fs          = Promise.promisifyAll(require("fs"));
 var neatCsv     = require('neat-csv');
+var utils = require('../utilsInventory');
 
 var uploading = multer({
     dest: __dirname + '/../public/uploads/'
@@ -69,7 +70,7 @@ router.get('/', function(req, res, next) {
         "from " +
         "item " +
         "where " +
-        "status = 'stock' " +
+        "iduser = 0 " +
         "group by idCategory) t2 ON t1.id = t2.id").then(function(rowItems) {
 
         res.render('inventory-index', {
@@ -105,9 +106,9 @@ router.get('/rekapitulasi', function(req, res, next) {
         "DATE_FORMAT(datein, '%e %b %Y - %k:%i') tgl_masuk, " +
         "DATE_FORMAT(dateout, '%e %b %Y - %k:%i') tgl_keluar, " +
         "item.name nama, " +
-        "idcategory jenis, " +
-        "serialNumber sn, " +
-        "status, " +
+        "item.idcategory jenis, " +
+        "item.serialNumber sn, " +
+        "item.status, " +
         "user.name user, " +
         "user.division userdivision, " +
         "lastIdUser lastuserdivision, " +
@@ -378,7 +379,7 @@ router.get('/new-hire', function(req, res, next) {
                         "idcategory " +
                         "FROM " +
                         "dbinventory.item " +
-                        "WHERE status = 'Stock' " +
+                        "WHERE iduser = '0' " +
                         "group by idcategory " +
                         "order by idcategory ASC")
                         .then(function(rowCategory){
@@ -390,7 +391,7 @@ router.get('/new-hire', function(req, res, next) {
                                     "idcategory " +
                                     "FROM dbinventory.item " +
                                     "where idcategory = '"+ category.idcategory +"' " +
-                                    "and status = 'stock'";
+                                    "and iduser = '0'";
                                 var task = inventoryConn.query(catSqlStr)
                                     .then(function(rowItem){
                                         return Promise.each(rowItem, function(item) {
@@ -581,6 +582,153 @@ router.get('/transfer', function(req, res, next) {
     res.render('inventory-transfer', {
         layout: 'inventory'
     });
+});
+
+/* GET inventory import trans page. */
+router.get('/export', function(req, res, next) {
+    var inventory = {};
+    var users = {};
+    return inventoryConn.query("SELECT " +
+        "idinventory id, name name, idcategory " +
+        "FROM " +
+        "dbinventory.item " +
+        "WHERE status = 'Stock' " +
+        "ORDER BY left(id, 1) , length(id) , id")
+        .then(function(rowInventory) {
+            inventory = rowInventory;
+            return inventoryConn.query("SELECT " +
+                "iduser, name, position " +
+                "FROM " +
+                "dbinventory.user " +
+                "WHERE status = 'Active' " +
+                "order by name ASC")
+                .then(function(rowUser) {
+                    users = rowUser;
+            });
+        }).then(function(result){
+            res.render('inventory-export', {
+                layout: 'inventory',
+                rowInventory : inventory,
+                rowUser : users
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
+});
+
+/* POST inventory export by input page. */
+router.post('/export', function(req, res, next) {
+    var arrayItemLogValue = [];
+    var exports = [];
+    var arrayItemQueryValue;
+
+
+    var postInputData = req.body.export || {};
+
+    if(!_.isNull(postInputData) || !_.isUndefined(postInputData)){
+        exports = Array.prototype.slice.call(postInputData);
+    }
+
+    return Promise.each(exports, function (item) {
+        var idInventory = item.item;
+        var idUser = item.user;
+        var location = utils.userLocation(idUser);
+        var lastIdUser = utils.lastUser(idInventory);
+        console.log(location);
+        //column update : dateOut, status, iduser, location || where idinventory
+        arrayItemQueryValue = "UPDATE dbinventory.item " +
+            "SET " +
+            "dateOut ='" + dateNow + "', " +
+            "status ='Used Up', " +
+            "iduser ='" + idUser + "', " +
+            "lastIdUser ='" + lastIdUser + "', " +
+            "location = '"+ location +"' " +
+            "WHERE idinventory = '"+ idInventory +"'";
+
+        var logString = "INSERT INTO dbinventory.log " +
+            "(date, user, action, value, iditem) " +
+            "VALUES ?";
+
+        return inventoryConn.query(arrayItemQueryValue)
+            .then(function(){
+                var valueLogStr = '' +
+                    'User ID : ' + idUser + ' ' +
+                    'Location : ' + location + ' ' +
+                    'ID Inventory : ' + idInventory + ' ';
+
+                //log: date, admin. action, value, iditem
+                return arrayItemLogValue.push([dateNow, 'admin', 'Export Iteam', valueLogStr, ''+ item +'']);
+            }).then(function(logSql){
+                return inventoryConn.query(logString, [arrayItemLogValue])
+                    .then(function () {
+                    });
+            })
+    }).then(function(){
+        res.render('inventory-export', {
+            layout: 'inventory',
+            message : 'Item berhasil masuk ke Stock, item updated..!!'
+        });
+    }).catch(function(error){
+        //logs out the error
+        console.error(error);
+    });
+});
+
+/* GET inventory import trans for ajax page. */
+router.get('/export-ajax', function(req, res, next) {
+    var inventory = {};
+    var users = {};
+    var rows = {};
+    return inventoryConn.query("SELECT " +
+        "idinventory id, name name, idcategory " +
+        "FROM " +
+        "dbinventory.item " +
+        "WHERE status = 'Stock' " +
+        "ORDER BY left(id, 1) , length(id) , id")
+        .then(function(rowInventory) {
+            inventory = rowInventory;
+            return inventoryConn.query("SELECT " +
+                "iduser, name, position " +
+                "FROM " +
+                "dbinventory.user " +
+                "WHERE status = 'Active' " +
+                "order by name ASC")
+                .then(function(rowUser) {
+                    users = rowUser;
+                });
+        }).then(function(result){
+            rows = {
+                inventory : inventory,
+                users : users
+            };
+            res.json(rows);
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
+});
+
+/* GET inventory export trans page. */
+router.get('/import', function(req, res, next) {
+    var inventory = {};
+    return inventoryConn.query("SELECT " +
+        "idinventory id, name name, idcategory " +
+        "FROM " +
+        "dbinventory.item " +
+        "WHERE status != 'Stock' " +
+        "ORDER BY left(id, 1) , length(id) , id")
+        .then(function(rowInventory) {
+            inventory = rowInventory;
+        }).then(function(result){
+            res.render('inventory-import', {
+                layout: 'inventory',
+                rowInventory : inventory
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
 });
 
 module.exports = router;

@@ -133,7 +133,7 @@ app.engine('handlebars', exphbs({
         parseLokasi: function(priv){
             var parse = "";
             if (priv == '1'){
-                parse = "CP";
+                parse = "DM";
             }else if (priv == '2') {
                 parse = "Kedoya"
             }else{
@@ -172,8 +172,11 @@ app.engine('handlebars', exphbs({
                 case '6':
                     parse = "Monitor";
                     break;
+                case '7':
+                    parse = "Other";
+                    break;
                 default:
-                    parse = "error";
+                    parse = "Error";
                     break;
             }
 

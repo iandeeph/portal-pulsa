@@ -7,6 +7,38 @@ var $dayElement;
 var $dayPos;
 var numFieldTrx = 1;
 
+function parseCategory(category) {
+    var parse = "";
+    switch (category) {
+        case '1':
+            parse = "Laptop";
+            break;
+        case '2':
+            parse = "Charger Laptop";
+            break;
+        case '3':
+            parse = "Mouse";
+            break;
+        case '4':
+            parse = "Headset";
+            break;
+        case '5':
+            parse = "Keyboard";
+            break;
+        case '6':
+            parse = "Monitor";
+            break;
+        case '7':
+            parse = "Other";
+            break;
+        default:
+            parse = "Error";
+            break;
+    }
+
+    return parse;
+}
+
 $(document).ready(function() {
     $(".button-collapse").sideNav();
     $('.collapsible').collapsible(
@@ -32,6 +64,63 @@ $(document).ready(function() {
             '<label>Untuk : </label> ' +
             '</div>' +
             '<div class="col s3 mb-50 addedTrx'+ numFieldTrx +'" name="addedTrx'+ numFieldTrx +'">' +
+            '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
+            '</div>');
+        $('select').material_select();
+        numFieldTrx++;
+
+        $('[name^=btnRemTrx]').click(function () {
+            var numToRem = $(this).attr('id');
+            var elm = ".addedTrx"+ numToRem;
+
+            console.log(elm);
+
+            $(elm).remove();
+        });
+    });
+
+    var optionInventory = [];
+    var optionUsers = [];
+    $.ajax({
+        url: './export-ajax',
+        type: "GET",
+        dataType: "json",
+        success: function (datas) {
+            var inventory = datas.inventory;
+            var users = datas.users;
+            for (var keys in datas) {
+                if (!datas.hasOwnProperty(keys)) continue;
+                var result = datas[keys];
+                for (var key in result) {
+                    if (!result.hasOwnProperty(key)) continue;
+                    if (keys = "inventory") {
+                        optionInventory.push('<option value="' + result[key].id + '">' + result[key].id + ' - ' + parseCategory(result[key].idcategory) + ' (' + result[key].name + ')</option>');
+                    }
+
+                    if (keys = "users") {
+                        optionUsers.push('<option value="' + result[key].iduser + '">' + result[key].name + ' - ' + result[key].position + '</option>');
+                    }
+                }
+            }
+        }
+    });
+    $("#btnAddInvTrx").click(function () {
+        $("#trxBlock").append('' +
+            '<div class="input-field col s5 addedTrx'+ numFieldTrx +'">' +
+            '<select name="export['+ numFieldTrx +'][item]" id="item'+ numFieldTrx +'">' +
+            '<option value="" disabled selected>Pilih Item</option>' +
+            optionInventory +
+            '</select>' +
+            '<label>ID Inventory : </label>' +
+            '</div>' +
+            '<div class="input-field col s6 addedTrx'+ numFieldTrx +'">' +
+            '<select name="export['+ numFieldTrx +'][user]" id="user'+ numFieldTrx +'">' +
+            '<option value="" disabled selected>Pilih User</option>' +
+            optionUsers +
+            '</select>' +
+            '<label>User : </label>' +
+            '</div>' +
+            '<div class="col s1 mb-50 addedTrx'+ numFieldTrx +'" name="addedTrx'+ numFieldTrx +'">' +
             '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
             '</div>');
         $('select').material_select();
@@ -186,9 +275,13 @@ $(document).ready(function() {
     setTimeout(
         function()
         {
-            if ($('#message').text().indexOf('New Hire berhasil ditambah') == 0){
+            var message = $('#message');
+            if (message.text().indexOf('New Hire berhasil ditambah') == 0 ){
                 window.location = '/inventory/new-hire';
+            } else if (message.text().indexOf('Item berhasil masuk ke Stock, item updated..!!') == 0){
+                window.location = '/inventory/export';
             }
+
         }, 2000);
 });
 

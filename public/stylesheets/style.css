@@ -1028,3 +1028,16 @@ div.valueLabel {
     margin-left: auto;
     margin-right: auto;
 }
+
+.scrollable-80{
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.height-100{
+    height: 100px;
+}
+
+.height-70{
+    height: 70px;
+}

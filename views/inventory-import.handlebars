@@ -1,0 +1,38 @@
+{{#section 'title'}}
+    Import Items - Portal Inventori Cermati
+{{/section}}
+{{error}}
+<div class="container">
+    <div class="row mt-20">
+        <div class="col s12 valign">
+            <span class="font-40">Import Items</span>
+            <a class="waves-effect waves-light white right black-text mt-20 btn" onclick="javascript:window.location = '/inventory';"><i class="material-icons black-text left">arrow_back</i>Kembali</a>
+        </div>
+    </div>
+    <div class="border-bottom"></div>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col s12 mt-20">
+                <button class="waves-effect waves-light blue btn darken-3 right">Submit</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 scrollable-80">
+                {{#each rowInventory}}
+                    <div class="input-field col l3 m6 s12 height-70 ">
+                        <p>
+                            <input type="checkbox" id="{{id}}"/>
+                            <label for="{{id}}">{{id}} - {{parseCategory idcategory}} ({{name}})</label>
+                        </p>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <span>{{message}}</span> <br>
+                <span>{{results}}</span>
+            </div>
+        </div>
+    </form>
+</div>
