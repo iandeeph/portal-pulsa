@@ -19,10 +19,11 @@
                             <label for="checkAllUserSmall"></label>
                         </p>
                     </th>
-                    <th width="31%">Nama</th>
-                    <th width="23%">Posisi</th>
-                    <th width="23%">Divisi</th>
-                    <th width="20%">Lokasi</th>
+                    <th width="30%">Nama</th>
+                    <th width="20%">Posisi</th>
+                    <th width="17%">Divisi</th>
+                    <th width="15%">Lokasi</th>
+                    <th width="15%">Status</th>
                     <th width="3%">Action</th>
                 </tr>
                 </thead>
@@ -46,6 +47,9 @@
                         </td>
                         <td>
                             {{parseLokasi lokasi}}
+                        </td>
+                        <td>
+                            {{status}}
                         </td>
                         <td>
                             <a href="#modalEditUser-{{id}}" class="btn-floating btn modal-trigger waves-effect waves-light btn green darken-2"><i class="material-icons edit">edit</i></a>

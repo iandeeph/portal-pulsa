@@ -15,6 +15,7 @@ var uploading = multer({
 });
 
 var dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+var inventoryLocation = '2';
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
@@ -134,7 +135,7 @@ router.get('/rekapitulasi', function(req, res, next) {
 /* GET inventory user page. */
 router.get('/user', function(req, res, next) {
     inventoryConn.query("SELECT " +
-        "iduser, name nama, location lokasi, position posisi, division divisi " +
+        "iduser, name nama, location lokasi, position posisi, division divisi, status " +
         "FROM " +
         "user " +
         "order by location, nama")
@@ -175,7 +176,7 @@ router.get('/log', function(req, res, next) {
         "idlog id, DATE_FORMAT(date, '%e %b %Y - %k:%i') as tanggal, user, action, value " +
         "FROM " +
         "log " +
-        "order by tanggal DESC")
+        "order by date DESC")
         .then(function(rowLog) {
             res.render('inventory-log', {
                 rowLog: rowLog,
@@ -621,7 +622,9 @@ router.get('/export', function(req, res, next) {
 router.post('/export', function(req, res, next) {
     var arrayItemLogValue = [];
     var exports = [];
-    var arrayItemQueryValue;
+    var itemQueryValue;
+    var idInventory;
+    var idUser;
 
 
     var postInputData = req.body.export || {};
@@ -631,44 +634,48 @@ router.post('/export', function(req, res, next) {
     }
 
     return Promise.each(exports, function (item) {
-        var idInventory = item.item;
-        var idUser = item.user;
-        var location = utils.userLocation(idUser);
-        var lastIdUser = utils.lastUser(idInventory);
-        console.log(location);
-        //column update : dateOut, status, iduser, location || where idinventory
-        arrayItemQueryValue = "UPDATE dbinventory.item " +
-            "SET " +
-            "dateOut ='" + dateNow + "', " +
-            "status ='Used Up', " +
-            "iduser ='" + idUser + "', " +
-            "lastIdUser ='" + lastIdUser + "', " +
-            "location = '"+ location +"' " +
-            "WHERE idinventory = '"+ idInventory +"'";
+        idInventory = item.item;
+        idUser = item.user;
+        var location = "";
 
-        var logString = "INSERT INTO dbinventory.log " +
-            "(date, user, action, value, iditem) " +
-            "VALUES ?";
+        return inventoryConn.query('SELECT location FROM dbinventory.user WHERE iduser = "'+ idUser +'" limit 1').then(function(rowLocation) {
+            location = rowLocation[0].location;
+            console.log(location);
+            //column update : dateOut, status, iduser, location || where idinventory
+            itemQueryValue = "UPDATE dbinventory.item " +
+                "SET " +
+                "dateOut ='" + dateNow + "', " +
+                "status ='Used Up', " +
+                "iduser ='" + idUser + "', " +
+                "lastIdUser = '0', " +
+                "location = '"+ location +"' " +
+                "WHERE idinventory = '"+ idInventory +"'";
 
-        return inventoryConn.query(arrayItemQueryValue)
-            .then(function(){
-                var valueLogStr = '' +
-                    'User ID : ' + idUser + ' ' +
-                    'Location : ' + location + ' ' +
-                    'ID Inventory : ' + idInventory + ' ';
+            var logString = "INSERT INTO dbinventory.log " +
+                "(date, user, action, value, iditem) " +
+                "VALUES ?";
 
-                //log: date, admin. action, value, iditem
-                return arrayItemLogValue.push([dateNow, 'admin', 'Export Iteam', valueLogStr, ''+ item +'']);
-            }).then(function(logSql){
-                return inventoryConn.query(logString, [arrayItemLogValue])
-                    .then(function () {
-                    });
-            })
-    }).then(function(){
-        res.render('inventory-export', {
-            layout: 'inventory',
-            message : 'Item berhasil masuk ke Stock, item updated..!!'
-        });
+            return inventoryConn.query(itemQueryValue)
+                .then(function(){
+                    var valueLogStr = '' +
+                        'User ID : ' + idUser + ' ' +
+                        'Location : ' + location + ' ' +
+                        'ID Inventory : ' + idInventory + ' ';
+
+                    //log: date, admin. action, value, iditem
+                    return arrayItemLogValue.push([dateNow, 'admin', 'Export Iteam', valueLogStr, ''+ idInventory +'']);
+                }).then(function(logSql){
+                    return inventoryConn.query(logString, [arrayItemLogValue])
+                        .then(function () {
+                            console.log("Log Inserted..");
+                        });
+                })
+        }).then(function(){
+            res.render('inventory-export', {
+                layout: 'inventory',
+                message : 'Item berhasil di export, item updated..!!'
+            });
+        })
     }).catch(function(error){
         //logs out the error
         console.error(error);
@@ -729,6 +736,76 @@ router.get('/import', function(req, res, next) {
             //logs out the error
             console.error(error);
         });
+});
+
+/* POST inventory import by input page. */
+router.post('/import', function(req, res, next) {
+    var arrayItemLogValue = [];
+    var importItem = [];
+    var itemQueryValue;
+    var idInventory;
+    var idUser;
+
+
+    var postInputData = req.body.import || {};
+    if(!_.isNull(postInputData) || !_.isUndefined(postInputData)){
+        //importItem = Array.prototype.slice.call(postInputData);
+        importItem = _.values(postInputData);
+    }
+
+    ////https://stackoverflow.com/questions/38824349/convert-object-to-array-in-javascript
+    //importItem = Object.keys(postInputData)
+    //    // iterate over them and generate the array
+    //    .map(function(k) {
+    //        // generate the array element
+    //        return [postInputData[k]];
+    //    });
+
+    return Promise.each(importItem, function (item) {
+        idInventory = item.item;
+
+        return inventoryConn.query('SELECT idUser FROM dbinventory.item WHERE idinventory = "'+ idInventory +'" limit 1')
+            .then(function(rowUserId) {
+                console.log(rowUserId);
+                idUser = rowUserId[0].idUser;
+                //column update : dateOut, status, iduser, location || where idinventory
+                itemQueryValue = "UPDATE dbinventory.item " +
+                    "SET " +
+                    "dateIn ='" + dateNow + "', " +
+                    "status ='Stock', " +
+                    "lastIdUser ='" + idUser + "', " +
+                    "idUser = '0', " +
+                    "location = '"+ inventoryLocation +"' " +
+                    "WHERE idinventory = '"+ idInventory +"'";
+
+                var logString = "INSERT INTO dbinventory.log " +
+                    "(date, user, action, value, iditem) " +
+                    "VALUES ?";
+
+                return inventoryConn.query(itemQueryValue)
+                    .then(function(){
+                        var valueLogStr = '' +
+                            'User ID : ' + idUser + ' ' +
+                            'ID Inventory : ' + idInventory + ' ';
+
+                        //log: date, admin. action, value, iditem
+                        return arrayItemLogValue.push([dateNow, 'admin', 'Import Iteam', valueLogStr, ''+ idInventory +'']);
+                    }).then(function(logSql){
+                        return inventoryConn.query(logString, [arrayItemLogValue])
+                            .then(function () {
+                                console.log("Log Inserted..");
+                            });
+                    })
+        }).then(function(){
+            res.render('inventory-import', {
+                layout: 'inventory',
+                message : 'Item berhasil masuk ke Stock, item updated..!!'
+            });
+        })
+    }).catch(function(error){
+        //logs out the error
+        console.error(error);
+    });
 });
 
 module.exports = router;

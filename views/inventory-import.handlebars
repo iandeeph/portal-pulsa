@@ -21,7 +21,7 @@
                 {{#each rowInventory}}
                     <div class="input-field col l3 m6 s12 height-70 ">
                         <p>
-                            <input type="checkbox" id="{{id}}"/>
+                            <input name="import[{{@key}}][item]" type="checkbox" id="{{id}}" value="{{id}}"/>
                             <label for="{{id}}">{{id}} - {{parseCategory idcategory}} ({{name}})</label>
                         </p>
                     </div>
@@ -30,8 +30,7 @@
         </div>
         <div class="row">
             <div class="col s12">
-                <span>{{message}}</span> <br>
-                <span>{{results}}</span>
+                <span class="font-20 green-text" id="message">{{message}}</span>
             </div>
         </div>
     </form>

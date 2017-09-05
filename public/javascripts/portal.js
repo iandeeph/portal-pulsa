@@ -88,18 +88,22 @@ $(document).ready(function() {
         success: function (datas) {
             var inventory = datas.inventory;
             var users = datas.users;
-            for (var keys in datas) {
-                if (!datas.hasOwnProperty(keys)) continue;
-                var result = datas[keys];
-                for (var key in result) {
-                    if (!result.hasOwnProperty(key)) continue;
-                    if (keys = "inventory") {
-                        optionInventory.push('<option value="' + result[key].id + '">' + result[key].id + ' - ' + parseCategory(result[key].idcategory) + ' (' + result[key].name + ')</option>');
-                    }
-
-                    if (keys = "users") {
-                        optionUsers.push('<option value="' + result[key].iduser + '">' + result[key].name + ' - ' + result[key].position + '</option>');
-                    }
+            for (var keysInv in inventory) {
+                if (!inventory.hasOwnProperty(keysInv)) continue;
+                var resInv = inventory[keysInv];
+                //console.log(resInv);
+                for (var keyInv in resInv) {
+                    if (!resInv.hasOwnProperty(keyInv)) continue;
+                    //console.log(resInv.id);
+                    optionInventory.push('<option value="' + resInv.id + '">' + resInv.id + ' - ' + parseCategory(resInv.idcategory) + ' (' + resInv.name + ')</option>');
+                }
+            }
+            for (var keys in users) {
+                if (!users.hasOwnProperty(keys)) continue;
+                var resUser = users[keys];
+                for (var key in resUser) {
+                    if (!resUser.hasOwnProperty(key)) continue;
+                    optionUsers.push('<option value="' + resUser.iduser + '">' + resUser.name + ' - ' + resUser.position + '</option>');
                 }
             }
         }
@@ -278,8 +282,10 @@ $(document).ready(function() {
             var message = $('#message');
             if (message.text().indexOf('New Hire berhasil ditambah') == 0 ){
                 window.location = '/inventory/new-hire';
-            } else if (message.text().indexOf('Item berhasil masuk ke Stock, item updated..!!') == 0){
+            } else if (message.text().indexOf('Item berhasil di export, item updated..!!') == 0){
                 window.location = '/inventory/export';
+            } else if (message.text().indexOf('Item berhasil masuk ke Stock, item updated..!!') == 0){
+                window.location = '/inventory/import';
             }
 
         }, 2000);
