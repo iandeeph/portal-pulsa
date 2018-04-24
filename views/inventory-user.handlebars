@@ -2,10 +2,10 @@
     User - Portal Inventori Cermati
 {{/section}}
 {{error}}
-<div class="container mt-20">
+<div class="width-wide mt-20">
     <div class="col s12">
         <span class="font-40">User</span>
-        <a href="#modalAddUser" class="waves-effect waves-light btn red accent-4 mt-20 right"><i class="material-icons">person_add</i></a>
+        <a href="#modalAddUser" class="waves-effect waves-light btn green darken-2 mt-20 right modal-trigger"><i class="material-icons">person_add</i></a>
         <a id="delSelectionUserButton" href="#modalDelUser" class="waves-effect waves-light btn red accent-4 disabled mt-20 right mr-10" disabled><i class="material-icons left">delete</i>Delete</a>
     </div>
     <form action="" method="post" class="col s12">
@@ -19,11 +19,13 @@
                             <label for="checkAllUserSmall"></label>
                         </p>
                     </th>
-                    <th width="30%">Nama</th>
-                    <th width="20%">Posisi</th>
+                    <th width="25%">Nama</th>
+                    <th width="15%">Posisi</th>
                     <th width="17%">Divisi</th>
-                    <th width="15%">Lokasi</th>
-                    <th width="15%">Status</th>
+                    <th width="10%">Lokasi</th>
+                    <th width="10%">Status</th>
+                    <th width="10%">Tgl. Join</th>
+                    <th width="10%">Tgl. Quit</th>
                     <th width="3%">Action</th>
                 </tr>
                 </thead>
@@ -46,18 +48,73 @@
                             {{divisi}}
                         </td>
                         <td>
-                            {{parseLokasi lokasi}}
+                            {{lokasi}}
                         </td>
                         <td>
                             {{status}}
                         </td>
                         <td>
-                            <a href="#modalEditUser-{{id}}" class="btn-floating btn modal-trigger waves-effect waves-light btn green darken-2"><i class="material-icons edit">edit</i></a>
+                            {{fullDate joindate}}
+                        </td>
+                        <td>
+                            {{fullDate quitdate}}
+                        </td>
+                        <td>
+                            <a href="#modalEditUser-{{iduser}}" class="btn-floating btn modal-trigger waves-effect waves-light btn green darken-2"><i class="material-icons edit">edit</i></a>
                         </td>
                     </tr>
                 {{/each}}
                 <tbody>
             </table>
+        </div>
+        <div id="modalAddUser" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="col s12 row border-bottom mb-30 ">
+                    <div class="col s8">
+                        <h4>Tambah User Baru</h4>
+                    </div>
+                    <div class="input-field col s4 mb-20">
+                        <button type="submit" name="addUserButton" class="waves-effect waves-light btn green darken-4 right">Submit</button>
+                        <a href="#!" class="ml-10 mr-10 modal-action modal-close waves-effect waves-light btn blue darken-4 right">Cancel</a>
+                    </div>
+                </div>
+                <div id="userModalBlock" class="col s12 row">
+                    <div class="file-field input-field col s12 m6 l4">
+                        <input id="addName0" name="user[0][name]" type="text" class="validate" placeholder="Nama User" required>
+                        <label for="addName0">Nama</label>
+                    </div>
+                    <div class="input-field col s12 m6 l3">
+                        <select id="addUserPosition0" name="user[0][position]">
+                            <option value="" disabled selected>Pilih Posisi</option>
+                            {{#each rowPosition}}
+                                <option value="{{idposition}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                        <label>Posisi</label>
+                    </div>
+                    <div class="input-field col s12 m6 l2">
+                        <select id="addUserDivision0" name="user[0][division]">
+                            <option value="" disabled selected>Pilih Divisi</option>
+                            {{#each rowDivision}}
+                                <option value="{{iddivision}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                        <label>Divisi</label>
+                    </div>
+                    <div class="input-field col s12 m6 l2">
+                        <select id="addUserLocation0" name="user[0][location]">
+                            <option value="" disabled selected>Pilih Lokasi</option>
+                            {{#each rowOffice}}
+                                <option value="{{idoffice}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                        <label>Lokasi</label>
+                    </div>
+                    <div class="col s1 mb-50">
+                        <a class="btn-floating btn waves-effect waves-light green darken-3" id="btnAddUserModal" title="Tambah Transaksi"><i class="material-icons">add</i></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
 </div>

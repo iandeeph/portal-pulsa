@@ -5,61 +5,74 @@
     <div class="col s12">
         <span class="font-40">Sisa Paket</span>
     </div>
-    <div class="col s12">
-        <form action="#" method="post">
-            <div class="input-field col s12 m6 l2">
-                <select>
-                    <option value="" disabled selected>Pilih Periode</option>
-                    <option value="1">Option 1</option>
-                    <option value="2">Option 2</option>
-                    <option value="3">Option 3</option>
-                </select>
-                <label>Periode</label>
-            </div>
-        </form>
-    </div>
+    <!--<div class="col s12">-->
+    <!--<form action="#" method="post">-->
+    <!--<div class="input-field col s12 m6 l2">-->
+    <!--<select>-->
+    <!--<option value="" disabled selected>Pilih Periode</option>-->
+    <!--<option value="1">Option 1</option>-->
+    <!--<option value="2">Option 2</option>-->
+    <!--<option value="3">Option 3</option>-->
+    <!--</select>-->
+    <!--<label>Periode</label>-->
+    <!--</div>-->
+    <!--</form>-->
+    <!--</div>-->
     <div class="mt-30 home-table row">
-        <div class="col s12">
-            <table class="bordered auto-scroll">
+        <div class="col s12 freeze">
+            <table class="bordered auto-scroll freeze">
                 <thead>
-                    <tr class="border-bottom">
-                        <th class="border-right" rowspan="3">
+                <tr class="border-bottom">
+                    <th class="border-right headcol th-height" rowspan="3">
+                        <div class="th-text">
                             Provider
+                        </div>
+                    </th>
+                    <th class="border-right" colspan="{{totalTanggal}}">
+                        Paket / Tanggal & Jam
+                    </th>
+                </tr>
+                <tr class="border-bottom">
+                    <th class="border-right">
+                    </th>
+                    {{#each tanggal}}
+                        <th id="tanggal{{this}}" class="border-right" colspan="4">
+                            {{this}}
                         </th>
-                        <th class="border-right" colspan="{{totalSpan}}">
-                            Paket / Tanggal & Jam
+                    {{/each}}
+                </tr>
+                <tr class="border-bottom">
+                    <th class="border-right">
+                    </th>
+                    {{#each tanggal}}
+                        <th class="border-right">
+                            05:00
                         </th>
-                    </tr>
-                    <tr class="border-bottom">
-                        {{#each tanggal}}
-                            <th id="tanggal{{tanggal}}" class="border-right" colspan="{{totalRow}}">
-                                {{tanggal}}
-                            </th>
-                        {{/each}}
-                    </tr>
-                    <tr class="border-bottom">
-                        {{#each tanggalJam}}
-                            {{#each jam}}
-                            <th class="border-right">
-                                    {{this}}
-                            </th>
-                            {{/each}}
-                        {{/each}}
-                    </tr>
+                        <th class="border-right">
+                            07:00
+                        </th>
+                        <th class="border-right">
+                            12:00
+                        </th>
+                        <th class="border-right">
+                            16:00
+                        </th>
+                    {{/each}}
+                </tr>
                 </thead>
                 <tbody>
                 {{#each layoutTemplate}}
                     <tr>
-                        <td>
-                            {{this.provider}}
+                        <td class="headcol" colspan="2">
+                            {{@key}}
                         </td>
-                    {{#each this}}
                         {{#each this}}
-                            <td class="fixed">
-                                {{this.paket}}
-                            </td>
+                            {{#each this}}
+                                <td class="fixed" title="{{this.ussd}}">
+                                    {{this.paket}}
+                                </td>
+                            {{/each}}
                         {{/each}}
-                    {{/each}}
                     </tr>
                 {{/each}}
                 </tbody>

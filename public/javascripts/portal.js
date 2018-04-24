@@ -60,6 +60,7 @@ $(document).ready(function() {
             '<select name="transactions['+ numFieldTrx +'][untuk]" id="untuk'+ numFieldTrx +'"> ' +
             '<option value="1">Kedoya</option> ' +
             '<option value="2">Biak</option> ' +
+            '<option value="3">Daan Mogot</option> ' +
             '</select> ' +
             '<label>Untuk : </label> ' +
             '</div>' +
@@ -81,33 +82,90 @@ $(document).ready(function() {
 
     var optionInventory = [];
     var optionUsers = [];
-    $.ajax({
-        url: './export-ajax',
-        type: "GET",
-        dataType: "json",
-        success: function (datas) {
-            var inventory = datas.inventory;
-            var users = datas.users;
-            for (var keysInv in inventory) {
-                if (!inventory.hasOwnProperty(keysInv)) continue;
-                var resInv = inventory[keysInv];
-                //console.log(resInv);
-                for (var keyInv in resInv) {
-                    if (!resInv.hasOwnProperty(keyInv)) continue;
-                    //console.log(resInv.id);
-                    optionInventory.push('<option value="' + resInv.id + '">' + resInv.id + ' - ' + parseCategory(resInv.idcategory) + ' (' + resInv.name + ')</option>');
-                }
-            }
-            for (var keys in users) {
-                if (!users.hasOwnProperty(keys)) continue;
-                var resUser = users[keys];
-                for (var key in resUser) {
-                    if (!resUser.hasOwnProperty(key)) continue;
-                    optionUsers.push('<option value="' + resUser.iduser + '">' + resUser.name + ' - ' + resUser.position + '</option>');
-                }
-            }
-        }
+    var optionPosition = [];
+    var optionDivision = [];
+    var optionLocation = [];
+    //$.ajax({
+    //    url: './export-ajax',
+    //    type: "GET",
+    //    dataType: "json",
+    //    success: function (datas) {
+    //        var inventory = datas.inventory;
+    //        var users = datas.users;
+    //        var position = datas.position;
+    //        var division = datas.division;
+    //        var location = datas.location;
+    //        for (var keysInv in inventory) {
+    //            if (!inventory.hasOwnProperty(keysInv)) continue;
+    //            var resInv = inventory[keysInv];
+    //            optionInventory.push('<option value="' + resInv.id + '">' + resInv.id + ' - ' + parseCategory(resInv.idcategory) + ' (' + resInv.name + ')</option>');
+    //        }
+    //        for (var keys in users) {
+    //            if (!users.hasOwnProperty(keys)) continue;
+    //            var resUser = users[keys];
+    //            optionUsers.push('<option value="' + resUser.iduser + '">' + resUser.name + ' - ' + resUser.position + '</option>');
+    //        }
+    //        for (var keysPosition in position) {
+    //            if (!position.hasOwnProperty(keysPosition)) continue;
+    //            var resPosition = position[keysPosition];
+    //            optionPosition.push('<option value="' + resPosition.idposition + '">' + resPosition.name + '</option>');
+    //        }
+    //        for (var keysDivision in division) {
+    //            if (!division.hasOwnProperty(keysDivision)) continue;
+    //            var resDivision = division[keysDivision];
+    //            optionDivision.push('<option value="' + resDivision.iddivsion + '">' + resDivision.name + '</option>');
+    //        }
+    //        for (var keysLocation in location) {
+    //            if (!location.hasOwnProperty(keysLocation)) continue;
+    //            var resLocation = location[keysLocation];
+    //            optionLocation.push('<option value="' + resLocation.idoffice + '">' + resLocation.name + '</option>');
+    //        }
+    //    }
+    //});
+
+    $("#btnAddUserModal").click(function () {
+        $("#userModalBlock").append('' +
+            '<div class="file-field input-field col s12 m6 l4 addedTrx'+ numFieldTrx +'">' +
+            '<input id="addName'+ numFieldTrx +'" name="user['+ numFieldTrx +'][name]" type="text" class="validate" placeholder="Nama User" required>' +
+            '<label class="active" for="addName'+ numFieldTrx +'">Nama</label>' +
+            '</div>' +
+            '<div class="input-field col s12 m6 l3 addedTrx'+ numFieldTrx +'">' +
+            '<select id="addUserPosition'+ numFieldTrx +'" name="user['+ numFieldTrx +'][position]">' +
+            '<option value="" disabled selected>Pilih Posisi</option>' +
+            optionPosition +
+            '</select>' +
+            '<label>Posisi</label>' +
+            '</div>' +
+            '<div class="input-field col s12 m6 l2 addedTrx'+ numFieldTrx +'">' +
+            '<select id="addUserDivision'+ numFieldTrx +'" name="user['+ numFieldTrx +'][division]">' +
+            '<option value="" disabled selected>Pilih Divisi</option>' +
+            optionDivision +
+            '</select>' +
+            '<label>Divisi</label>' +
+            '</div>' +
+            '<div class="input-field col s12 m6 l2 addedTrx'+ numFieldTrx +'">' +
+            '<select id="addUserLocation'+ numFieldTrx +'" name="user['+ numFieldTrx +'][location]">' +
+            '<option value="" disabled selected>Pilih Lokasi</option>' +
+            optionLocation +
+            '</select>' +
+            '<label>Lokasi</label>' +
+            '</div>' +
+            '<div class="col s1 mb-50 addedTrx'+ numFieldTrx +'" name="addedTrx'+ numFieldTrx +'">' +
+            '<a class="btn-floating btn waves-effect waves-light red darken-3 btnRemTrx'+ numFieldTrx +'" name="btnRemTrx'+ numFieldTrx +'" id="'+ numFieldTrx +'" title="Hapus"><i class="material-icons">remove</i></a>' +
+            '</div>');
+        $('select').material_select();
+        numFieldTrx++;
+
+        $('[name^=btnRemTrx]').click(function () {
+            var numToRem = $(this).attr('id');
+            var elm = ".addedTrx"+ numToRem;
+
+            console.log(elm);
+
+            $(elm).remove();
+        });
     });
+
     $("#btnAddInvTrx").click(function () {
         $("#trxBlock").append('' +
             '<div class="input-field col s5 addedTrx'+ numFieldTrx +'">' +
@@ -241,6 +299,8 @@ $(document).ready(function() {
     var inputListGroup = $('.inputListGroup');
     var listGroup = $('.listGroup');
     var tbody = $('tbody');
+    var submitBtn = $('#listSubmit');
+    var listForm = $('#listForm');
 
     inputListGroup.hide();
     inputListGroup.attr("disabled", true);
@@ -254,10 +314,16 @@ $(document).ready(function() {
         $(this).children('input').show();
         $(this).children('input').addClass('blue-text');
         $(this).parent().children('td').children('input').attr("disabled", false);
+        $(this).children('input').focus();
+        //$(this).children('input').attr("disabled", false);
     });
 
     inputListGroup.change(function(){
-        $('#formListGroup').submit();
+        var inputVal = $(this).val();
+        console.log(inputVal);
+        submitBtn.val(inputVal);
+        //submitBtn.click();
+        listForm.submit();
     });
 
     var myTable = "#myTable";
@@ -286,9 +352,21 @@ $(document).ready(function() {
                 window.location = '/inventory/export';
             } else if (message.text().indexOf('Item berhasil masuk ke Stock, item updated..!!') == 0){
                 window.location = '/inventory/import';
+            } else if (message.text().indexOf('User berhasil ditambah, user updated..!!') == 0){
+                window.location = '/inventory/user';
             }
 
         }, 2000);
+
+    $('.modal').modal({
+            dismissible: false, // Modal can be dismissed by clicking outside of the modal
+            opacity: .5, // Opacity of modal background
+            inDuration: 300, // Transition in duration
+            outDuration: 200, // Transition out duration
+            startingTop: '4%', // Starting top style attribute
+            endingTop: '10%' // Ending top style attribute
+        }
+    );
 });
 
 $(document).on('click', '.duplicateButton', function() {

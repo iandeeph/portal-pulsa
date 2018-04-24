@@ -2,7 +2,8 @@ var express         = require('express');
 var router          = express.Router();
 var _               = require('lodash');
 var mysql           = require('promise-mysql');
-var Promise     = require('bluebird');
+var Promise         = require('bluebird');
+var crypto          = require('crypto');
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
@@ -48,15 +49,12 @@ router.get('/', function(req, res, next) {
 /* POST Login page. */
 router.post('/', function(req, res, next) {
     var postUsername = req.body.login_username;
-    var postPassword = req.body.login_password;
+    var postPassword = crypto.createHash('md5').update(req.body.login_password).digest('hex');
     agenPulsaConn.query('SELECT * FROM admin').then(function(users) {
-        console.log(users);
         var loginPromise = new Promise(function (resolve, reject) {
             resolve(_.filter(users, {'username' : postUsername , 'password' : postPassword}));
         });
-
         loginPromise.then(function(loginItem) {
-            console.log(loginItem);
             if (_.isEmpty(loginItem)){
                 res.render('login',{
                     layout: 'login',

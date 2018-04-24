@@ -8,6 +8,7 @@ var utils = require('../utils');
 var currencyFormatter = require('currency-formatter');
 
 var NO_AGEN = "08562699002";
+//var NO_AGEN = "081514344606";
 var PIN = "0312";
 
 var dateNow = "";
@@ -74,98 +75,138 @@ router.get('/', function(req, res, next) {
 
 /* GET sisa pulsa page. */
 router.get('/pulsa', function(req, res, next) {
-  res.render('sisa-pulsa', { title: 'Sisa Pulsa' });
+    var layoutTemplate={};
+    var defJam;
+    var dateMonth = moment().format("M");
+    var dateYear = moment().format("YYYY");
+    agenPulsaConn.query('SELECT namaProvider nama, sisaPulsa pulsa, tanggal, ussdReply ussd from db_agen_pulsa.pulsa WHERE namaProvider not like "%XL%" AND YEAR(tanggal) = "'+ dateYear +'" AND MONTH(tanggal) = "'+ dateMonth +'"')
+        .then(function(rowPulsa) {
+
+            var promiseTanggal=[];
+            var totalDay  = utils.daysInMonth(dateMonth, dateYear);
+
+            for(var i= 1; i<= totalDay; i++){
+                promiseTanggal.push(i);
+            }
+            return Promise.all(promiseTanggal)
+                .then(function(headTanggal){
+                var grouped = _.groupBy(rowPulsa, 'nama');
+                var jamCekPaket = [
+                    "1", "3", "11", "15"
+                ];
+                Object.keys(grouped).forEach(function(key) {
+                    layoutTemplate[key]=[];
+                    headTanggal.forEach(function (day) {
+                        //console.log(day);
+                        layoutTemplate[key][day] = [];
+                        jamCekPaket.forEach(function (jam) {
+                            layoutTemplate[key][day][jam] = {"pulsa": "-", "ussd": ""};
+                        });
+                    });
+                });
+                //console.log(layoutTemplate);
+
+                Object.keys(rowPulsa).forEach(function(key) {
+
+                    var tanggalInObject = moment(rowPulsa[key].tanggal).toObject();
+
+                    if (moment(tanggalInObject.hours, 'H') >= moment('01', 'H') &&  moment(tanggalInObject.hours,'H') < moment('03', 'H')){
+                        defJam = moment(rowPulsa[key].tanggal).format('H');
+                    }else if (moment(tanggalInObject.hours, 'H') >= moment('03', 'H') &&  moment(tanggalInObject.hours,'H') < moment('11', 'H')){
+                        defJam = moment(rowPulsa[key].tanggal).format('H');
+                    }else if (moment(tanggalInObject.hours, 'H') >= moment('11', 'H') &&  moment(tanggalInObject.hours,'H') < moment('15', 'H')){
+                        defJam = moment(rowPulsa[key].tanggal).format('H');
+                    }else if (moment(tanggalInObject.hours, 'H') >= moment('15', 'H') &&  moment(tanggalInObject.hours,'H') < moment('23', 'H')){
+                        defJam = moment(rowPulsa[key].tanggal).format('H');
+                    }
+
+                    layoutTemplate[rowPulsa[key].nama][moment(rowPulsa[key].tanggal).format('D')][defJam] = {"pulsa": rowPulsa[key].pulsa, "ussd": rowPulsa[key].ussd};
+                });
+
+                //console.log(layoutTemplate);
+
+                res.render('sisa-pulsa', {
+                    tanggal: headTanggal,
+                    totalTanggal: (totalDay*4)+3,
+                    layoutTemplate : layoutTemplate
+                });
+            });
+        });
 });
 
 /* GET sisa paket page. */
 router.get('/paket', function(req, res, next) {
-    dateMonth = moment().format("M");
-    dateYear = moment().format("YYYY");
-    agenPulsaConn.query("SELECT namaProvider FROM dbpulsa.paket " +
-        "WHERE YEAR(tanggal) = '"+ dateYear +"' AND MONTH(tanggal) = '"+ dateMonth +"' " +
-        "GROUP BY namaProvider " +
-        "ORDER BY length(namaProvider), namaProvider, tanggal").then(function(rowNamaProvider) {
+    var layoutTemplate={};
+    var defJam;
+    var dateMonth = moment().format("M");
+    //dateMonth = moment("2017-11-30").format("M");
+    var dateYear = moment().format("YYYY");
+    agenPulsaConn.query('SELECT ' +
+        'namaProvider nama, ' +
+        'sisaPaket paket, ' +
+        'tanggal, ' +
+        'ussdReply ussd ' +
+        'from db_agen_pulsa.paket ' +
+        'WHERE ' +
+        'namaProvider not like "%XL%" ' +
+        'AND YEAR(tanggal) = "'+ dateYear +'" AND MONTH(tanggal) = "'+ dateMonth +'" ' +
+        'ORDER BY nama')
+        .then(function(rowPaket) {
+            //console.log('SELECT namaProvider nama, sisaPulsa paket, tanggal, ussdReply ussd from db_agen_pulsa.paket WHERE YEAR(tanggal) = "'+ dateYear +'" AND MONTH(tanggal) = "'+ dateMonth +'"');
+            //console.log(rowPaket);
+            dateMonth = moment().format("M");
+            //dateMonth = moment("2017-11-30").format("M");
+            dateYear = moment().format("YYYY");
 
-        agenPulsaConn.query("SELECT * FROM dbpulsa.paket " +
-            "WHERE YEAR(tanggal) = '"+ dateYear +"' AND MONTH(tanggal) = '"+ dateMonth +"' " +
-            "ORDER BY length(namaProvider), namaProvider, tanggal").then(function(rowPacket) {
+            var promiseTanggal=[];
 
-            //THEAD VALUE
-            var totalDay  = utils.daysInMonth(10, 2016);
-            var jamCekPaket = [
-                "07:00", "07:15", "07:30", "07:45",
-                "08:00", "08:15", "08:30", "08:45",
-                "09:00", "09:15", "09:30", "09:45",
-                "10:00", "10:15", "10:30", "10:45",
-                "11:00", "11:15", "11:30", "11:45",
-                "12:00", "12:15", "12:30", "12:45",
-                "13:00", "13:15", "13:30", "13:45",
-                "14:00", "14:15", "14:30", "14:45",
-                "15:00", "15:15", "15:30", "15:45",
-                "16:00", "16:15", "16:30", "16:45",
-                "17:00", "17:15", "17:30", "17:45",
-                "18:00", "18:15", "18:30", "18:45"
-            ];
+            var totalDay  = utils.daysInMonth(dateMonth, dateYear);
 
-            var totalJamCekPaket = jamCekPaket.length;
-
-            var tanggal = {};
-            var tanggalJam = {};
-
-            for (var i = 1; i <= totalDay; i++) {
-                tanggalJam[i] = {jam: jamCekPaket};
-                tanggal[i] = {tanggal: i, totalRow: totalJamCekPaket};
+            for(var i= 1; i<= totalDay; i++){
+                promiseTanggal.push(i);
             }
-
-            //TBODY VALUE
-            var layoutTemplate = {};
-            var defJam = "";
-
-            Object.keys(rowNamaProvider).forEach(function(key) {
-                layoutTemplate[rowNamaProvider[key].namaProvider] = {"provider": rowNamaProvider[key].namaProvider};
-                for (i = 1; i <= totalDay; i++) {
-                    layoutTemplate[rowNamaProvider[key].namaProvider][i] = {};
-                    jamCekPaket.forEach(function (jam) {
-                        layoutTemplate[rowNamaProvider[key].namaProvider][i][jam] = {"paket": "-", "USSD": ""};
+            return Promise.all(promiseTanggal)
+                .then(function(headTanggal){
+                    var grouped = _.groupBy(rowPaket, 'nama');
+                    var jamCekPaket = [
+                        "5", "7", "12", "16"
+                    ];
+                    Object.keys(grouped).forEach(function(key) {
+                        layoutTemplate[key]=[];
+                        headTanggal.forEach(function (day) {
+                            //console.log(day);
+                            layoutTemplate[key][day] = [];
+                            jamCekPaket.forEach(function (jam) {
+                                layoutTemplate[key][day][jam] = {"paket": "-", "ussd": ""};
+                            });
+                        });
                     });
-                }
-            });
+                    //console.log(layoutTemplate);
 
-            Object.keys(rowPacket).forEach(function(key) {
+                    Object.keys(rowPaket).forEach(function(key) {
 
-                var tanggalInObject = moment(rowPacket[key].tanggal).toObject();
+                        var tanggalInObject = moment(rowPaket[key].tanggal).toObject();
 
-                if (moment(tanggalInObject.seconds, 'mm') >= moment('00', 'mm') &&  moment(tanggalInObject.seconds,'mm') < moment('15', 'mm')){
-                    tanggalInObject = {seconds: "00"};
-                    defJam = moment(rowPacket[key].tanggal).format('hh:mm');
-                }else if (moment(tanggalInObject.seconds,'mm') >= moment('15', 'mm') &&  moment(tanggalInObject.seconds,'mm') < moment('30', 'mm')){
-                    dtanggalInObject = {seconds: "15"};
-                    defJam = moment(rowPacket[key].tanggal).format('hh:mm');
-                }else if (moment(tanggalInObject.seconds,'mm') >= moment('30', 'mm') &&  moment(tanggalInObject.seconds,'mm') < moment('45', 'mm')){
-                    tanggalInObject = {seconds: "30"};
-                    defJam = moment(rowPacket[key].tanggal).format('hh:mm');
-                }else if (moment(tanggalInObject.seconds,'mm') >= moment('45', 'mm') &&  moment(tanggalInObject.seconds,'mm') < moment('60', 'mm')){
-                    tanggalInObject = {seconds: "45"};
-                    defJam = moment(rowPacket[key].tanggal).format('hh:mm');
-                }
+                        if (moment(tanggalInObject.hours, 'H') >= moment('05', 'H') &&  moment(tanggalInObject.hours,'H') < moment('07', 'H')){
+                            defJam = moment(rowPaket[key].tanggal).format('H');
+                        }else if (moment(tanggalInObject.hours, 'H') >= moment('07', 'H') &&  moment(tanggalInObject.hours,'H') < moment('12', 'H')){
+                            defJam = moment(rowPaket[key].tanggal).format('H');
+                        }else if (moment(tanggalInObject.hours, 'H') >= moment('12', 'H') &&  moment(tanggalInObject.hours,'H') < moment('16', 'H')){
+                            defJam = moment(rowPaket[key].tanggal).format('H');
+                        }else if (moment(tanggalInObject.hours, 'H') >= moment('16', 'H') &&  moment(tanggalInObject.hours,'H') < moment('23', 'H')){
+                            defJam = moment(rowPaket[key].tanggal).format('H');
+                        }
 
-                layoutTemplate[rowPacket[key].namaProvider][moment(rowPacket[key].tanggal).format('D')][defJam] = {"paket": rowPacket[key].sisaPaket, "USSD": rowPacket[key].ussdReply};
-            });
+                        layoutTemplate[rowPaket[key].nama][moment(rowPaket[key].tanggal).format('D')][defJam] = {"paket": rowPaket[key].paket, "ussd": rowPaket[key].ussd};
+                    });
 
-            res.render('sisa-paket', {
-                tanggalJam: tanggalJam,
-                totalJamCekPaket: totalJamCekPaket,
-                jamCekPaket: jamCekPaket,
-                tanggal: tanggal,
-                totalDay: totalDay,
-                totalSpan: (totalDay * totalJamCekPaket),
-                layoutTemplate: layoutTemplate
-            });
-        })
-    }).catch(function(error){
-        //logs out the error
-        console.error(error);
-    });
+                    res.render('sisa-paket', {
+                        tanggal: headTanggal,
+                        totalTanggal: (totalDay*4)+3,
+                        layoutTemplate : layoutTemplate
+                    });
+                });
+        });
 });
 
 /* GET isi paket page. */
@@ -188,6 +229,7 @@ router.get('/reload', function(req, res, next) {
 //insert data
 router.post('/reload', function(req,res){
     var login = req.session.login || "";
+    var num = 0;
     if(login == 'loged'){
         //console.log(req.body.transactions);
         var arrayQueryValue = [];
@@ -197,71 +239,84 @@ router.post('/reload', function(req,res){
 
 
         var transactions = Array.prototype.slice.call(req.body.transactions);
-        var num = 0;
 
         return agenPulsaConn.query("SELECT MAX(ID) as ID FROM sentitems LIMIT 1")
             .then(function(newID) {
-                return Promise.each(transactions, function (transaction) {
-                    num++;
-                    console.log(newID[0].ID);
-                    var trx = transaction.trx;
-                    var phone = transaction.phone.replace(/\D/g, '');
-                    var untuk = transaction.untuk;
-                    arrayQueryValue.push([NO_AGEN, trx + '.' + phone + '.' + PIN, 'agenpulsa', (parseInt(newID[0].ID,10) + num), 'Default_No_Compression']);
+                return agenPulsaConn.query("SELECT `AUTO_INCREMENT` " +
+                    "FROM INFORMATION_SCHEMA.TABLES " +
+                    "WHERE TABLE_SCHEMA = 'db_agen_pulsa' " +
+                    "AND TABLE_NAME = 'outbox';")
+                    .then(function(autoincrement) {
+                        var outboxAi = parseInt(autoincrement[0].AUTO_INCREMENT,10);
+                        var newId = parseInt(newID[0].ID,10);
+                        var largestId;
+                        if(newId >= outboxAi){
+                            largestId = newId;
+                        }else{
+                            largestId = outboxAi;
+                        }
+                        return Promise.each(transactions, function (transaction) {
+                            console.log(newID[0].ID);
+                            var trx = transaction.trx;
+                            var phone = transaction.phone.replace(/\D/g, '');
+                            var untuk = transaction.untuk;
+                            arrayQueryValue.push([NO_AGEN, trx + '.' + phone + '.' + PIN, 'agenpulsa', (parseInt(largestId,10) + num), 'Default_No_Compression']);
+                            num++;
 
-                    //sisaSaldo = utils.sisaSaldo();
-                    //trunk = utils.findTrunk(transaction.phone);
+                            //sisaSaldo = utils.sisaSaldo();
+                            //trunk = utils.findTrunk(transaction.phone);
 
-                    console.log("PHONE IS = " + phone);
-                    return utils.findTrunk(phone)
-                        .then(function (result) {
-                            return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
-                        })
-                        .then(function (resultTrunk) {
-                            return utils.sisaSaldo()
-                                .then(function (saldo) {
-                                    dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-                                    arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                            console.log("PHONE IS = " + phone);
+                            return utils.findTrunk(phone)
+                                .then(function (result) {
+                                    return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
                                 })
-                        })
-                        .catch(function (error) {
-                            //logs out the error
-                            console.error(error);
-                        });
-                }).then(function () {
-                    console.log(
-                        arrayQueryValue,
-                        arrayReportValue //disini udah ga kosong lagi
-                    );
-                    var queryString = "INSERT INTO db_agen_pulsa.outbox " +
-                        "(DestinationNumber, TextDecoded, CreatorID, ID,  Coding) " +
-                        "VALUES ?";
-                    console.log(queryString);
-                    var queryReport = "INSERT INTO db_agen_pulsa.report " +
-                        "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
-                        "VALUES ?";
-                    console.log(queryReport);
-                    return agenPulsaConn.query(queryString, [arrayQueryValue])
-                        .then(function (results) {
-                            console.log(arrayReportValue);
-
-                            return results;
-                        }).then(function (results) {
-                            return agenPulsaConn.query(queryReport, [arrayReportValue])
-                                .then(function (results) {
-
-                                    console.log("Report Log..\n" + arrayReportValue);
-
-                                    res.render('reload', {
-                                        message: 'Transaksi berhasil disubmit..!!'
-                                    });
+                                .then(function (resultTrunk) {
+                                    return utils.sisaSaldo()
+                                        .then(function (saldo) {
+                                            dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+                                            arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                                        })
+                                })
+                                .catch(function (error) {
+                                    //logs out the error
+                                    console.error(error);
                                 });
+                        }).then(function () {
+                            console.log(
+                                arrayQueryValue,
+                                arrayReportValue //disini udah ga kosong lagi
+                            );
+                            var queryString = "INSERT INTO db_agen_pulsa.outbox " +
+                                "(DestinationNumber, TextDecoded, CreatorID, ID, Coding) " +
+                                "VALUES ?";
+                            console.log(queryString);
+                            var queryReport = "INSERT INTO db_agen_pulsa.report " +
+                                "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
+                                "VALUES ?";
+                            console.log(queryReport);
+                            return agenPulsaConn.query(queryString, [arrayQueryValue])
+                                .then(function (results) {
+                                    console.log(arrayReportValue);
 
-                        }).catch(function (error) {
-                            //logs out the error
-                            console.error(error);
+                                    return results;
+                                }).then(function (results) {
+                                    return agenPulsaConn.query(queryReport, [arrayReportValue])
+                                        .then(function (results) {
+
+                                            console.log("Report Log..\n" + arrayReportValue);
+
+                                            res.render('reload', {
+                                                message: 'Transaksi berhasil disubmit..!!'
+                                            });
+                                        });
+
+                                }).catch(function (error) {
+                                    //logs out the error
+                                    console.error(error);
+                                });
                         });
-                });
+                    });
             }).catch(function (error) {
                 //logs out the error
                 console.error(error);
@@ -281,18 +336,17 @@ router.get('/sentitems', function(req, res, next) {
     agenPulsaConn.query('SELECT ' +
     'status as status, ' +
     'CreatorID as CreatorID, ' +
-    'ID AS ID, ' +
-    'DATE_FORMAT(SendingDateTime, "%e %b %Y - %k:%i") AS date, ' +
-    'REPLACE (REPLACE (DestinationNumber, "+62",	"0"), "+628", "08" ) AS number, ' +
+    'ID as ID, ' +
+    'DATE_FORMAT(SendingDateTime, "%e %b %Y - %k:%i") as date, ' +
+    'REPLACE (REPLACE (DestinationNumber, "+62", "0"), "+628", "08" ) AS number, ' +
     'TextDecoded ' +
     'FROM ' +
     'sentitems ' +
     'ORDER BY SendingDateTime DESC ' +
-
-    'LIMIT 30').then(function(rowSents) {
+    'LIMIT 30').then(function(rowSent) {
         //console.log(rowSents[0].number);
         res.render('sentitems',{
-            rowSents: rowSents
+            rowSents: rowSent
         });
     }).catch(function(error){
         //logs out the error
@@ -714,62 +768,35 @@ router.get('/list', function(req, res, next) {
 
 /* GET list numnber page. */
 router.post('/list', function(req, res, next) {
-    var postList = "";
-    if(_.isUndefined(req.body.listGroup) == 'true'){
-        console.log(_.isUndefined(req.body.listGroup));
-        postList = "";
-        agenPulsaConn.query("SELECT * FROM db_agen_pulsa.provider  " +
-            "ORDER BY length(namaProvider), namaProvider")
-        .then(function(list) {
-            res.render('list', {
-                title: 'List Nomor Terpakai',
-                rowList: list
-            });
-        })
-        .catch(function (error) {
-            //logs out the error
-            console.error(error);
-        });
-    }else {
-        var data = [];
-        postList = Array.prototype.slice.call(req.body.listGroup);
+    var listGroup = req.body.listGroup || {};
+    //console.log(req.body);
+    //res.redirect('/list');
+    var postList = Array.prototype.slice.call(listGroup);
+    //var postList = listGroup;
+    //console.log(postList);
 
-        var sqlUpdate = "UPDATE db_agen_pulsa.provider SET " +
-            "namaProvider = '"+ postList[0].namaProvider +"', " +
-            "noProvider = '"+ postList[0].noProvider +"', " +
-            "namaPaket = '"+ postList[0].namaPaket +"', " +
-            "host = '"+ postList[0].host +"', " +
-            "span = '"+ postList[0].span +"', " +
-            "hargaPaket = '"+ postList[0].hargaPaket +"', " +
-            "caraCekPulsa = '"+ postList[0].caraCekPulsa +"', " +
-            "caraAktivasi = '"+ postList[0].caraAktivasi +"', " +
-            "caraCekKuota = '"+ postList[0].caraCekKuota +"', " +
-            "caraStopPaket = '"+ postList[0].caraStopPaket +"', " +
-            "expDatePaket = '"+ postList[0].expDatePaket +"' " +
-            "WHERE idProvider = '"+ postList[0].ID +"'";
-        console.log(sqlUpdate);
-        return agenPulsaConn.query(sqlUpdate)
-        .then(function(updateResult){
-            console.log("updateResult = "+updateResult);
-            return agenPulsaConn.query("SELECT * FROM db_agen_pulsa.provider  " +
-                "ORDER BY length(namaProvider), namaProvider")
-                .then(function(list) {
-                    res.render('list', {
-                        title: 'List Nomor Terpakai',
-                        rowList: list
-                    });
-                    return list;
-                }).catch(function (error) {
-                    //logs out the error
-                    console.error(error);
-                });
+    var sqlUpdate = "UPDATE db_agen_pulsa.provider SET " +
+        "namaProvider = '"+ postList[0].namaProvider +"', " +
+        "noProvider = '"+ postList[0].noProvider +"', " +
+        "namaPaket = '"+ postList[0].namaPaket +"', " +
+        "host = '"+ postList[0].host +"', " +
+        "span = '"+ postList[0].span +"', " +
+        "hargaPaket = '"+ postList[0].hargaPaket +"', " +
+        "caraCekPulsa = '"+ postList[0].caraCekPulsa +"', " +
+        "caraAktivasi = '"+ postList[0].caraAktivasi +"', " +
+        "caraCekKuota = '"+ postList[0].caraCekKuota +"', " +
+        "caraStopPaket = '"+ postList[0].caraStopPaket +"', " +
+        "expDatePaket = '"+ postList[0].expDatePaket +"' " +
+        "WHERE idProvider = '"+ postList[0].ID +"'";
+    //console.log(sqlUpdate);
+    return agenPulsaConn.query(sqlUpdate)
+    .then(function(updateResult){
+            res.redirect('/list');
         })
-        .catch(function (error) {
-            //logs out the error
-            console.error(error);
+    .catch(function (error) {
+        //logs out the error
+        console.error(error);
         });
-
-    }
 });
 
 module.exports = router;

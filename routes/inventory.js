@@ -88,7 +88,67 @@ router.get('/', function(req, res, next) {
 /* GET inventory recap by item page. */
 router.get('/rekapitulasi', function(req, res, next) {
     inventoryConn.query("SELECT " +
-    "t.id id, " +
+        "t4.id id, " +
+        "t4.tgl_masuk, " +
+        "t4.tgl_keluar, " +
+        "t4.nama nama, " +
+        "t4.jenis jenis, " +
+        "t4.sn sn, " +
+        "t4.status status, " +
+        "t4.user user, " +
+        "t4.userdivision userdivision, " +
+        "t4.lastuser lastuser, " +
+        "t4.lastuserdivision lastuserdivision, " +
+        "office.name lokasi, " +
+        "t4.keterangan " +
+    "FROM" +
+    "(SELECT " +
+        "t3.id id, " +
+        "t3.tgl_masuk, " +
+        "t3.tgl_keluar, " +
+        "t3.nama nama, " +
+        "category.name jenis, " +
+        "t3.sn sn, " +
+        "t3.status status, " +
+        "t3.user user, " +
+        "t3.userdivision userdivision, " +
+        "t3.lastuser lastuser, " +
+        "t3.lastuserdivision lastuserdivision, " +
+        "t3.lokasi lokasi, " +
+        "t3.keterangan " +
+    "FROM" +
+    "(SELECT " +
+        "t2.id id, " +
+        "t2.tgl_masuk, " +
+        "t2.tgl_keluar, " +
+        "t2.nama nama, " +
+        "t2.jenis jenis, " +
+        "t2.sn sn, " +
+        "t2.status status, " +
+        "t2.user user, " +
+        "t2.userdivision userdivision, " +
+        "t2.lastuser lastuser, " +
+        "division.name lastuserdivision, " +
+        "t2.lokasi lokasi, " +
+        "t2.keterangan " +
+    "FROM" +
+    "(SELECT " +
+        "t1.id id, " +
+        "t1.tgl_masuk, " +
+        "t1.tgl_keluar, " +
+        "t1.nama nama, " +
+        "t1.jenis jenis, " +
+        "t1.sn sn, " +
+        "t1.status status, " +
+        "t1.user user, " +
+        "division.name userdivision, " +
+        "t1.lastuser lastuser, " +
+        "t1.lastuserdivision lastuserdivision, " +
+        "t1.lokasi lokasi, " +
+        "t1.keterangan " +
+    "FROM" +
+    "(SELECT " +
+        "t.id id, " +
         "t.tgl_masuk tgl_masuk, " +
         "t.tgl_keluar tgl_keluar, " +
         "t.nama nama, " +
@@ -98,12 +158,12 @@ router.get('/rekapitulasi', function(req, res, next) {
         "t.user user, " +
         "t.userdivision userdivision, " +
         "user.name lastuser, " +
-        "user.division lastuserdivision, "+
+        "user.iddivision lastuserdivision, "+
         "t.lokasi lokasi, " +
         "t.keterangan keterangan " +
     "FROM " +
     "(SELECT " +
-    "idinventory id, " +
+        "idinventory id, " +
         "DATE_FORMAT(datein, '%e %b %Y - %k:%i') tgl_masuk, " +
         "DATE_FORMAT(dateout, '%e %b %Y - %k:%i') tgl_keluar, " +
         "item.name nama, " +
@@ -111,15 +171,18 @@ router.get('/rekapitulasi', function(req, res, next) {
         "item.serialNumber sn, " +
         "item.status, " +
         "user.name user, " +
-        "user.division userdivision, " +
-        "lastIdUser lastuserdivision, " +
+        "user.iddivision userdivision, " +
+        "item.lastIdUser lastuserdivision, " +
         "item.location lokasi, " +
         "notes keterangan " +
     "FROM " +
     "dbinventory.item " +
     "left join dbinventory.user ON item.iduser = user.iduser) t " +
-    "left join " +
-    "user ON t.lastuserdivision = user.iduser " +
+    "left join user ON t.lastuserdivision = user.iduser) t1 " +
+    "left join division ON t1.userdivision = division.iddivision) t2 " +
+    "left join division ON t2.lastuserdivision = division.iddivision) t3 " +
+    "left join category ON t3.jenis = category.idcategory) t4 " +
+    "left join office ON t4.lokasi = office.name " +
     "ORDER BY left(id, 1) , length(id) , id").then(function(rowByItem) {
         res.render('inventory-rekapitulasi', {
             rows: rowByItem,
@@ -134,21 +197,140 @@ router.get('/rekapitulasi', function(req, res, next) {
 
 /* GET inventory user page. */
 router.get('/user', function(req, res, next) {
-    inventoryConn.query("SELECT " +
-        "iduser, name nama, location lokasi, position posisi, division divisi, status " +
+    var users;
+    var position;
+    var division;
+    var location;
+    return inventoryConn.query("SELECT " +
+        "t1.iduser iduser, " +
+        "t1.nama nama, " +
+        "t1.idposition idposition, " +
+        "t1.posisi posisi, " +
+        "office.idoffice idoffice, " +
+        "office.name lokasi, " +
+        "t1.status status, " +
+        "t1.joindate joindate, " +
+        "t1.quitdate quitdate, " +
+        "t1.iddivision iddivision, " +
+        "t1.divisi divisi " +
         "FROM " +
-        "user " +
-        "order by location, nama")
+        "(SELECT " +
+        "t.iduser iduser, " +
+        "t.nama nama, " +
+        "position.idposition idposition, " +
+        "position.name posisi, " +
+        "t.lokasi lokasi, " +
+        "t.status status, " +
+        "t.joindate joindate, " +
+        "t.quitdate quitdate, " +
+        "t.iddivision iddivision, " +
+        "t.divisi divisi " +
+        "FROM " +
+        "(SELECT " +
+        "user.iduser iduser, " +
+        "user.name nama, " +
+        "user.idposition posisi, " +
+        "user.idlocation lokasi, " +
+        "user.status status, " +
+        "user.joindate joindate, " +
+        "user.quitdate quitdate, " +
+        "division.iddivision iddivision, " +
+        "division.name divisi " +
+        "FROM dbinventory.user " +
+        "left join " +
+        "division " +
+        "on user.iddivision = division.iddivision) t " +
+        "LEFT JOIN position on t.posisi = position.idposition) t1 " +
+        "LEFT JOIN office on t1.lokasi = office.idoffice " +
+        "ORDER BY nama;")
         .then(function(rowUser) {
-            res.render('inventory-user', {
-                rowUser: rowUser,
-                layout: 'inventory'
+            users = rowUser;
+            return inventoryConn.query("SELECT * FROM dbinventory.position order by name").then(function(rowPosition) {
+                position = rowPosition;
+                return inventoryConn.query("SELECT * FROM dbinventory.division order by name").then(function(rowDivision) {
+                    division = rowDivision;
+                    return inventoryConn.query("SELECT * FROM dbinventory.office order by name").then(function(rowOffice) {
+                        location = rowOffice;
+                        res.render('inventory-user', {
+                            layout: 'inventory',
+                            rowUser: users,
+                            rowPosition : position,
+                            rowDivision : division,
+                            rowOffice : location
+                        });
+                    });
+                });
             });
         })
         .catch(function(error){
             //logs out the error
             console.error(error);
         });
+});
+
+/* POST inventory user by input page. */
+router.post('/user', function(req, res, next) {
+    var arrayUserLogValue = [];
+    var arrayUserValue = [];
+    var insertUserString;
+    var logString;
+    var usersItem;
+    var idInventory;
+    var username;
+    var userIdPosition;
+    var userIdDivision;
+    var userIdLocation;
+
+    var postInputData = req.body.user || {};
+    if(!_.isNull(postInputData) || !_.isUndefined(postInputData)){
+        //importItem = Array.prototype.slice.call(postInputData);
+        usersItem = _.values(postInputData);
+    }
+
+    //table-user = name, idposition, iddivision, idlocation, status, joindate, quitdate
+    insertUserString = "INSERT INTO dbinventory.user " +
+        "(name, idposition, iddivision, idlocation, status, joindate) " +
+        "VALUES ?";
+
+    logString = "INSERT INTO dbinventory.log " +
+        "(date, user, action, value, iditem) " +
+        "VALUES ?";
+
+    return Promise.each(usersItem, function (item) {
+        username = item.name;
+        userIdPosition = item.position;
+        userIdDivision = item.division;
+        userIdLocation = item.location;
+
+        arrayUserValue.push([username, userIdPosition, userIdDivision, userIdLocation, 'Active', dateNow]);
+
+        return inventoryConn.query(insertUserString, [arrayUserValue])
+            .then(function () {
+                var valueLogStr = '' +
+                    'Username : ' + username + ' ' +
+                    'ID Posisi : ' + userIdPosition + ' ' +
+                    'ID Divisi : ' + userIdDivision + ' ' +
+                    'ID Lokasi : ' + userIdLocation + ' ' +
+                    'Tgl Join : ' + dateNow + ' ' +
+                    '';
+
+                //log: date, admin. action, value, iditem
+                return arrayUserLogValue.push([dateNow, 'admin', 'Import Iteam', valueLogStr, '' + idInventory + '']);
+            }).then(function (logSql) {
+                return inventoryConn.query(logString, [arrayUserLogValue])
+                    .then(function () {
+                        console.log("Log Inserted..");
+                    });
+            });
+    }).then(function(){
+        res.render('inventory-import', {
+            layout: 'inventory',
+            message : 'User berhasil ditambah, user updated..!!'
+        });
+    }).catch(function(error){
+        //logs out the error
+        console.error(error);
+    });
 });
 
 /* GET inventory admin user page. */
@@ -364,8 +546,8 @@ router.get('/new-hire', function(req, res, next) {
         "position " +
         "FROM " +
         "dbinventory.user " +
-        "group by position " +
-        "order by position ASC")
+        "group by idposition " +
+        "order by idposition ASC")
         .then(function(rowPosition) {
             positions = rowPosition;
             return inventoryConn.query("SELECT " +
@@ -438,7 +620,7 @@ router.post('/new-hire-csv',  uploading.single('csvFilesUser'), function(req, re
         quote: '"',     // specify optional quote character
         escape: '"',    // specify optional escape character (defaults to quote value)
         newline: '\n',  // specify a newline character
-        headers: ['name', 'position', 'division', 'location'] // Specifing the headers
+        headers: ['name', 'idposition', 'iddivision', 'idlocation'] // Specifing the headers
     });
 
     var postFileData = req.file || {};
@@ -478,7 +660,7 @@ router.post('/new-hire-csv',  uploading.single('csvFilesUser'), function(req, re
             arrayUserLogValue.push([dateNow, 'admin', 'Add New User', valueLogStr, '0']);
         }).then(function () {
             insertUserString = "INSERT INTO dbinventory.user " +
-                "(name, position, division, location) " +
+                "(name, idposition, division, location) " +
                 "VALUES ?";
             console.log(arrayUserQueryValue);
             return inventoryConn.query(insertUserString,[arrayUserQueryValue])
@@ -526,7 +708,7 @@ router.post('/new-hire', function(req, res, next) {
         var userLocation = post.location;
 
         var insertUserString = "INSERT INTO dbinventory.user " +
-            "(name, position, division, location) " +
+            "(name, idposition, iddivision, idlocation) " +
             "VALUES ('"+ userName +"', '"+ userPosition +"', '"+ userDivision +"', '"+ userLocation +"')";
         return inventoryConn.query(insertUserString, arrayUserQueryValue)
             .then(function () {
@@ -598,7 +780,7 @@ router.get('/export', function(req, res, next) {
         .then(function(rowInventory) {
             inventory = rowInventory;
             return inventoryConn.query("SELECT " +
-                "iduser, name, position " +
+                "iduser, name, idposition " +
                 "FROM " +
                 "dbinventory.user " +
                 "WHERE status = 'Active' " +
@@ -687,6 +869,9 @@ router.get('/export-ajax', function(req, res, next) {
     var inventory = {};
     var users = {};
     var rows = {};
+    var position;
+    var division;
+    var location;
     return inventoryConn.query("SELECT " +
         "idinventory id, name name, idcategory " +
         "FROM " +
@@ -696,20 +881,32 @@ router.get('/export-ajax', function(req, res, next) {
         .then(function(rowInventory) {
             inventory = rowInventory;
             return inventoryConn.query("SELECT " +
-                "iduser, name, position " +
+                "user.iduser iduser, user.name name, position.name position " +
                 "FROM " +
-                "dbinventory.user " +
+                "dbinventory.user LEFT JOIN position on user.idposition = position.idposition " +
                 "WHERE status = 'Active' " +
                 "order by name ASC")
                 .then(function(rowUser) {
                     users = rowUser;
+                    return inventoryConn.query("SELECT * FROM dbinventory.position order by name").then(function(rowPosition) {
+                        position = rowPosition;
+                        return inventoryConn.query("SELECT * FROM dbinventory.division order by name").then(function(rowDivision) {
+                            division = rowDivision;
+                            return inventoryConn.query("SELECT * FROM dbinventory.office order by name").then(function(rowOffice) {
+                                location = rowOffice;
+                            }).then(function(result) {
+                                rows = {
+                                    inventory: inventory,
+                                    users: users,
+                                    position: position,
+                                    division: division,
+                                    location: location
+                                };
+                                res.json(rows);
+                            });
+                        });
+                    });
                 });
-        }).then(function(result){
-            rows = {
-                inventory : inventory,
-                users : users
-            };
-            res.json(rows);
         }).catch(function(error){
             //logs out the error
             console.error(error);
