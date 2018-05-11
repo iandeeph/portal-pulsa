@@ -769,33 +769,149 @@ router.get('/list', function(req, res, next) {
 /* GET list numnber page. */
 router.post('/list', function(req, res, next) {
     var listGroup = req.body.listGroup || {};
+    var inputProvider = req.body.inputProvider || {};
+    var btnDelete = req.body.btnDelete || {};
+    var sqlString = "";
+    //for debug
     //console.log(req.body);
+    //console.log(!_.isEmpty(inputProvider));
+    //console.log(!_.isEmpty(listGroup));
+    //console.log(!_.isEmpty(btnDelete));
     //res.redirect('/list');
-    var postList = Array.prototype.slice.call(listGroup);
-    //var postList = listGroup;
-    //console.log(postList);
+    if(!_.isEmpty(inputProvider)){
+            sqlString = "insert into db_agen_pulsa.provider " +
+                "(namaProvider, noProvider, namaPaket, host, span, hargaPaket, caraCekPulsa, caraAktivasi, caraCekKuota, caraStopPaket, expDatePaket) " +
+                "VALUE " +
+                "('"+ inputProvider.namaProvider +"', " +
+                "'"+ inputProvider.noProvider +"', " +
+                "'"+ inputProvider.namaPaket +"', " +
+                "'"+ inputProvider.host +"', " +
+                "'"+ inputProvider.span +"', " +
+                "'"+ inputProvider.hargaPaket +"', " +
+                "'"+ inputProvider.caraCekPulsa +"', " +
+                "'"+ inputProvider.caraAktivasi +"', " +
+                "'"+ inputProvider.caraCekKuota +"', " +
+                "'"+ inputProvider.caraStopPaket +"', " +
+                "'"+ inputProvider.expDatePaket +"')";
+                //console.log(sqlString);
+                return agenPulsaConn.query(sqlString)
+                    .then(function(updateResult){
+                        res.redirect('/list');
+                    })
+                    .catch(function (error) {
+                        //logs out the error
+                        console.error(error);
+                    });
+    }else if(!_.isEmpty(listGroup)){
+        return Promise.each(_.toArray(listGroup), function(postList){
+            sqlString = "UPDATE db_agen_pulsa.provider SET " +
+                "namaProvider = '"+ postList.namaProvider +"', " +
+                "noProvider = '"+ postList.noProvider +"', " +
+                "namaPaket = '"+ postList.namaPaket +"', " +
+                "host = '"+ postList.host +"', " +
+                "span = '"+ postList.span +"', " +
+                "hargaPaket = '"+ postList.hargaPaket +"', " +
+                "caraCekPulsa = '"+ postList.caraCekPulsa +"', " +
+                "caraAktivasi = '"+ postList.caraAktivasi +"', " +
+                "caraCekKuota = '"+ postList.caraCekKuota +"', " +
+                "caraStopPaket = '"+ postList.caraStopPaket +"', " +
+                "expDatePaket = '"+ postList.expDatePaket +"' " +
+                "WHERE idProvider = '"+ postList.idProvider +"'";
+        }).then(function(){
+            //console.log(sqlString);
+            return agenPulsaConn.query(sqlString)
+            .then(function(updateResult){
+                    res.redirect('/list');
+                })
+            .catch(function (error) {
+                //logs out the error
+                console.error(error);
+                });
+        });
+    }else if(!_.isEmpty(btnDelete)){
+        sqlString = "DELETE FROM db_agen_pulsa.provider WHERE idProvider = '"+ btnDelete.idProvider +"'";
+        //console.log(sqlString);
+        return agenPulsaConn.query(sqlString)
+            .then(function(updateResult){
+                res.redirect('/list');
+            })
+            .catch(function (error) {
+                //logs out the error
+                console.error(error);
+            });
+    }
+});
 
-    var sqlUpdate = "UPDATE db_agen_pulsa.provider SET " +
-        "namaProvider = '"+ postList[0].namaProvider +"', " +
-        "noProvider = '"+ postList[0].noProvider +"', " +
-        "namaPaket = '"+ postList[0].namaPaket +"', " +
-        "host = '"+ postList[0].host +"', " +
-        "span = '"+ postList[0].span +"', " +
-        "hargaPaket = '"+ postList[0].hargaPaket +"', " +
-        "caraCekPulsa = '"+ postList[0].caraCekPulsa +"', " +
-        "caraAktivasi = '"+ postList[0].caraAktivasi +"', " +
-        "caraCekKuota = '"+ postList[0].caraCekKuota +"', " +
-        "caraStopPaket = '"+ postList[0].caraStopPaket +"', " +
-        "expDatePaket = '"+ postList[0].expDatePaket +"' " +
-        "WHERE idProvider = '"+ postList[0].ID +"'";
-    //console.log(sqlUpdate);
-    return agenPulsaConn.query(sqlUpdate)
-    .then(function(updateResult){
-            res.redirect('/list');
-        })
-    .catch(function (error) {
-        //logs out the error
-        console.error(error);
+/* GET monthly-report page. */
+router.get('/report-all', function(req, res, next) {
+    var dataSent = [];
+    var dataInbox = [];
+    var tasks = [];
+    var bulan = {};
+
+    agenPulsaConn.query("SELECT " +
+        "* " +
+        "FROM " +
+        "db_agen_pulsa.inbox " +
+        "WHERE " +
+        "TextDecoded NOT LIKE '%pernah%' " +
+        "AND TextDecoded NOT LIKE '%segera%' " +
+        "AND TextDecoded like '%SUKSES.SN%' " +
+        "and receivingDateTime between '2018-01-01 00:00:00' and '2018.04.24 23:59:59';")
+        .then(function(inboxes) {
+            return Promise.each(inboxes, function(inbox){
+                var tanggalInbox = inbox.ReceivingDateTime;
+                var pesanInbox = inbox.TextDecoded;
+
+                var hrgPos = pesanInbox.indexOf('Hrg:');
+                var hrgPosToEnd = pesanInbox.substr(hrgPos + 4);
+                var pos2 = hrgPosToEnd.indexOf('/Sal:');
+
+                var harga = currencyFormatter.format(hrgPosToEnd.substr(0, pos2).replace(".",""), { code: 'IDR' });
+
+                var firstDotPos = pesanInbox.indexOf('.');
+                var pesanInbox1 = pesanInbox.substr(firstDotPos + 1);
+                var posTelp1 = pesanInbox1.indexOf(" ");
+                var noTelpInbox = pesanInbox1.substr(0, posTelp1 + 1);
+
+                var firstCommaPos = pesanInbox.indexOf(',');
+                var pesanInbox2 = pesanInbox.substr(firstCommaPos + 1);
+                var trxInbox = pesanInbox2.substr(0, pesanInbox2.indexOf("."));
+
+                bulan[moment(tanggalInbox).format("MMMM")] = [];
+                dataInbox.push({
+                    tanggal: moment(tanggalInbox).format("YYYY-MM-DD HH:mm:ss"),
+                    bulan: moment(tanggalInbox).format("MMMM"),
+                    trx: trxInbox,
+                    noTelp: noTelpInbox,
+                    harga: harga,
+                    numHarga: parseInt(hrgPosToEnd.substr(0, pos2).replace(".","")),
+                    status: "SUKSES"
+                });
+                //console.log(parseInt(hrgPosToEnd.substr(0, pos2)));
+
+            }).then(function(b){
+                return Promise.each(dataInbox, function(resInbox) {
+                    Object.keys(bulan).forEach(function(key) {
+                        if(resInbox.bulan == key){
+                            bulan[key].push(resInbox);
+                            //console.log("same")
+                        }
+                    });
+                }).then(function(){
+                    //console.log(bulan);
+                    var total = currencyFormatter.format(_.sumBy(dataInbox, 'intHarga'), { code: 'IDR' });
+                    console.log(_.sumBy(dataInbox, 'numHarga'));
+                    res.render('report-kedoya', {
+                        title: 'Laporan Pemakaian Saldo Cermati',
+                        reports: bulan,
+                        total : total
+                    });
+                });
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
         });
 });
 

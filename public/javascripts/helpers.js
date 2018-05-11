@@ -1,5 +1,6 @@
 var moment          = require('moment');
 var _               = require('lodash');
+var currencyFormatter = require('currency-formatter');
 
 exports.fullDate = function (date) {
     var parse = "";

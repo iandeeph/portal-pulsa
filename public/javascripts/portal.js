@@ -296,42 +296,42 @@ $(document).ready(function() {
         });
     }
 
-    var inputListGroup = $('.inputListGroup');
-    var listGroup = $('.listGroup');
-    var tbody = $('tbody');
-    var submitBtn = $('#listSubmit');
-    var listForm = $('#listForm');
-
-    inputListGroup.hide();
-    inputListGroup.attr("disabled", true);
-
-    listGroup.click(function () {
-        tbody.find('span').show();
-        tbody.find('input').hide();
-        tbody.find('input').attr("disabled", true);
-        tbody.find('input').removeClass('blue-text');
-        $(this).children('span').hide();
-        $(this).children('input').show();
-        $(this).children('input').addClass('blue-text');
-        $(this).parent().children('td').children('input').attr("disabled", false);
-        $(this).children('input').focus();
-        //$(this).children('input').attr("disabled", false);
-    });
-
-    inputListGroup.change(function(){
-        var inputVal = $(this).val();
-        console.log(inputVal);
-        submitBtn.val(inputVal);
-        //submitBtn.click();
-        listForm.submit();
-    });
-
-    var myTable = "#myTable";
-    if ($(myTable).length > 0){
-        $(function(){
-            $("#myTable").tablesorter();
-        });
-    }
+    //var inputListGroup = $('.inputListGroup');
+    //var listGroup = $('.listGroup');
+    //var tbody = $('tbody');
+    //var submitBtn = $('#listSubmit');
+    //var listForm = $('#listForm');
+    //
+    //inputListGroup.hide();
+    //inputListGroup.attr("disabled", true);
+    //
+    //listGroup.click(function () {
+    //    tbody.find('span').show();
+    //    tbody.find('input').hide();
+    //    tbody.find('input').attr("disabled", true);
+    //    tbody.find('input').removeClass('blue-text');
+    //    $(this).children('span').hide();
+    //    $(this).children('input').show();
+    //    $(this).children('input').addClass('blue-text');
+    //    $(this).parent().children('td').children('input').attr("disabled", false);
+    //    $(this).children('input').focus();
+    //    //$(this).children('input').attr("disabled", false);
+    //});
+    //
+    //inputListGroup.change(function(){
+    //    var inputVal = $(this).val();
+    //    console.log(inputVal);
+    //    submitBtn.val(inputVal);
+    //    //submitBtn.click();
+    //    listForm.submit();
+    //});
+    //
+    //var myTable = "#myTable";
+    //if ($(myTable).length > 0){
+    //    $(function(){
+    //        $("#myTable").tablesorter();
+    //    });
+    //}
 
 
     $('.icon_action').hover(function(){
