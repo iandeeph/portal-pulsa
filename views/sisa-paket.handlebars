@@ -68,9 +68,15 @@
                         </td>
                         {{#each this}}
                             {{#each this}}
-                                <td class="fixed" title="{{this.ussd}}">
-                                    {{this.paket}}
-                                </td>
+                                {{#compare this.paket 400 operator="<="}}
+                                    <td class="fixed red-text" title="{{this.ussd}}">
+                                        {{this.paket}}
+                                    </td>
+                                {{else}}
+                                    <td class="fixed" title="{{this.ussd}}">
+                                        {{this.paket}}
+                                    </td>
+                                {{/compare}}
                             {{/each}}
                         {{/each}}
                     </tr>
