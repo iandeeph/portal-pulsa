@@ -211,10 +211,10 @@ exports.compare = function (lvalue, rvalue, options) {
 
 exports.decrypt = function (password) {
     //console.log(password);
-    var mykey = crypto.createDecipheriv('rc4', 'Cermat123Hebat', '');
-    var mystr = mykey.update(password, 'binary', 'utf8');
-    mystr += mykey.final('binary');
-    //console.log(mystr);
+    var mykeydec = crypto.createDecipher('aes-128-cbc', 'Cermat123hebat');
+    var mystrdec = mykeydec.update(password, 'hex', 'utf8');
+    mystrdec += mykeydec.final('utf8');
+    //console.log(mystrdec);
 
-    return mystr;
+    return mystrdec;
 };

@@ -93,11 +93,11 @@
                             </td>
                             <td>
                                 <!-- Modal Trigger -->
-                                <a class="modal-trigger" href="#modal{{idUser}}" title="Edit"><i class="material-icons" >mode_edit</i></a>
-                                <a class="modal-trigger red-text" href="#modalDelete{{idUser}}" title="Hapus User"><i class="material-icons" >delete</i></a>
+                                <a class="modal-trigger" href="#modal{{iduser}}" title="Edit"><i class="material-icons" >mode_edit</i></a>
+                                <a class="modal-trigger red-text" href="#modalDelete{{iduser}}" title="Hapus User"><i class="material-icons" >delete</i></a>
                             </td>
                             <!-- Modal Structure -->
-                            <div id="modal{{idUser}}" class="modal">
+                            <div id="modal{{iduser}}" class="modal">
                                 <form action="" method="post" class="col s12">
                                     <div class="modal-content">
                                         <h4>Edit Detail User</h4>
@@ -106,21 +106,21 @@
                                             <div class="col s12">
                                                 <div class="row">
                                                     <div class="input-field col s12 m6 l6">
-                                                        <input class="validate" id="namaUser-{{idUser}}" name="editUser[{{@key}}][nama]" type="text" placeholder="Nama User" value="{{name}}" required>
-                                                        <label for="namaUser-{{idUser}}">Nama User</label>
+                                                        <input class="validate" id="namaUser-{{iduser}}" name="editUser[{{@key}}][nama]" type="text" placeholder="Nama User" value="{{name}}" required>
+                                                        <label for="namaUser-{{iduser}}">Nama User</label>
                                                     </div>
                                                     <div class="input-field col s12 m6 l6">
-                                                        <input class="validate" id="usernameUser-{{idUser}}" name="editUser[{{@key}}][username]" type="text" placeholder="Username" value="{{username}}" required>
-                                                        <label for="usernameUser-{{idUser}}">Username</label>
+                                                        <input class="validate" id="usernameUser-{{iduser}}" name="editUser[{{@key}}][username]" type="text" placeholder="Username" value="{{username}}" required>
+                                                        <label for="usernameUser-{{iduser}}">Username</label>
                                                     </div>
                                                     <div class="input-field col s12 m6 l6">
-                                                        <input class="validate" id="passwordUser-{{idUser}}" name="editUser[{{@key}}][password]" type="password" placeholder="Password" value="{{decrypt password}}" required>
+                                                        <input class="validate" id="passwordUser-{{iduser}}" name="editUser[{{@key}}][password]" type="password" placeholder="Password" value="{{decrypt password}}" required>
                                                         <label for="passwordUser">Password</label>
                                                     </div>
                                                     <div class="input-field col s12 m6 l6">
-                                                        <select id="privilegeUser-{{idUser}}" name="editUser[{{@key}}][privilege]" required>
+                                                        <select id="privilegeUser-{{iduser}}" name="editUser[{{@key}}][privilege]" required>
                                                             <option value="" disabled>Pilih Privilege</option>
-                                                            {{#compare privilege "0" operator="=="}}
+                                                            {{#compare privilege "2" operator="=="}}
                                                                 <option value="2" selected>User</option>
                                                                 <option value="1">Admin</option>
                                                             {{else}}
@@ -128,7 +128,7 @@
                                                                 <option value="1" selected>Admin</option>
                                                             {{/compare}}
                                                         </select>
-                                                        <label for="privilegeUser-{{idUser}}">User Privilege</label>
+                                                        <label for="privilegeUser-{{iduser}}">User Privilege</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -136,14 +136,14 @@
                                     </div>
                                     <div class="modal-footer">
                                         <div class="col s12 mb-20 mr-30">
-                                            <button name="editUser[{{@key}}][btnUpdate]" value="{{idUser}}" class="waves-effect waves-green blue darken-3 btn">Submit</button>
+                                            <button name="editUser[{{@key}}][btnUpdate]" value="{{iduser}}" class="waves-effect waves-green blue darken-3 btn">Submit</button>
                                             <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                             <!-- Modal Structure -->
-                            <div id="modalDelete{{idUser}}" class="modal">
+                            <div id="modalDelete{{iduser}}" class="modal">
                                 <form action="" method="post" class="col s12">
                                     <div class="modal-content">
                                         <h4>Hapus User</h4>
@@ -160,7 +160,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <div class="col s12 mb-20 mr-30">
-                                            <button name="deleteUser[{{@key}}][btnDelete]" value="{{idUser}}" class="waves-effect waves-green red darken-3 btn">Delete</button>
+                                            <button name="deleteUser[{{@key}}][btnDelete]" value="{{iduser}}" class="waves-effect waves-green red darken-3 btn">Delete</button>
                                             <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
                                         </div>
                                     </div>

@@ -51,12 +51,13 @@ router.post('/', function(req, res, next) {
     var postUsername = req.body.login_username;
     var postPassword = req.body.login_password;
 
-    var mykey = crypto.createCipheriv('rc4', 'Cermat123Hebat', '');
-    var mystr = mykey.update(postPassword, 'utf8', 'binary');
-    mystr += mykey.final('binary');
-    console.log(mystr);
+    var mykey = crypto.createCipher('aes-128-cbc', 'Cermat123hebat');
+    var mystr = mykey.update(postPassword, 'utf8', 'hex');
+    mystr += mykey.final('hex');
+    //console.log(mystr);
 
     agenPulsaConn.query('SELECT * FROM user').then(function(users) {
+        //console.log(users);
         var loginPromise = new Promise(function (resolve, reject) {
             resolve(_.filter(users, {'username' : postUsername , 'password' : mystr}));
         });
