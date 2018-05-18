@@ -7,11 +7,11 @@ var crypto          = require('crypto');
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
-    host         : '1.1.1.200',
+    host         : 'localhost',
     user         : 'root',
     password     : 'c3rmat',
     insecureAuth : 'true',
-    database     : 'dbinventory'
+    database     : 'db_agen_pulsa'
 };
 
 var agenPulsaConn;
@@ -49,10 +49,16 @@ router.get('/', function(req, res, next) {
 /* POST Login page. */
 router.post('/', function(req, res, next) {
     var postUsername = req.body.login_username;
-    var postPassword = crypto.createHash('md5').update(req.body.login_password).digest('hex');
-    agenPulsaConn.query('SELECT * FROM admin').then(function(users) {
+    var postPassword = req.body.login_password;
+
+    var mykey = crypto.createCipheriv('rc4', 'Cermat123Hebat', '');
+    var mystr = mykey.update(postPassword, 'utf8', 'binary');
+    mystr += mykey.final('binary');
+    console.log(mystr);
+
+    agenPulsaConn.query('SELECT * FROM user').then(function(users) {
         var loginPromise = new Promise(function (resolve, reject) {
-            resolve(_.filter(users, {'username' : postUsername , 'password' : postPassword}));
+            resolve(_.filter(users, {'username' : postUsername , 'password' : mystr}));
         });
         loginPromise.then(function(loginItem) {
             if (_.isEmpty(loginItem)){
@@ -62,7 +68,8 @@ router.post('/', function(req, res, next) {
                 });
             }else{
                 req.session.login       = 'loged';
-                req.session.username    = loginItem[0].name;
+                req.session.username    = loginItem[0].username;
+                req.session.name        = loginItem[0].name;
                 req.session.privilege   = loginItem[0].privilege;
                 res.writeHead(301,
                     {Location: '/'}

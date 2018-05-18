@@ -1,0 +1,176 @@
+{{#section 'title'}}
+    User Management - Portal Pulsa Cermati
+{{/section}}
+<div class="row ml-30 mr-30">
+    <div class="container">
+        <div class="col s12 mt-20">
+            <span class="font-40">Daftar User Portal</span>
+            <a class="modal-trigger btn-floating btn-large waves-effect waves-light green right mt-20" href="#modal-addUser"title="Tambah Entry"><i class="material-icons">add</i></a>
+            <!-- Modal Structure -->
+            <div id="modal-addUser" class="modal">
+                <form action="" method="post" class="col s12">
+                    <div class="modal-content">
+                        <h4>Tambah User</h4>
+                        <div class="divider"></div>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="row">
+                                    <div class="input-field col s12 m6 l6">
+                                        <input class="validate" id="namaUser" name="addUser[name]" type="text" required>
+                                        <label for="namaUser">Nama User</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l6">
+                                        <input class="validate" id="usernameUser" name="addUser[username]" type="text" required>
+                                        <label for="usernameUser">Username</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l6">
+                                        <input class="validate" id="passwordUser" name="addUser[password]" type="password" required>
+                                        <label for="passwordUser">Password</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l6">
+                                        <select id="privUser" name="addUser[privilege]" required>
+                                            <option value="" disabled selected>Pilih Privilege</option>
+                                                <option value="2">User</option>
+                                                <option value="1">Admin</option>
+                                        </select>
+                                        <label for="privUser">User Privilege</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col s12 mb-20 mr-30">
+                            <button name="userButton" value="addUser" class="waves-effect waves-green blue darken-3 btn">Submit</button>
+                            <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col s12 mt-30 mb-20 home-table">
+            <!--<form action="" method="post" class="col s12">-->
+                <table class="bordered">
+                    <thead>
+                    <tr>
+                        <th>
+                            No
+                        </th>
+                        <th>
+                            Nama
+                        </th>
+                        <th>
+                            Username
+                        </th>
+                        <th>
+                            Password
+                        </th>
+                        <th>
+                            Privilege
+                        </th>
+                        <th>
+                            Action
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each rowList}}
+                        <tr class="group">
+                            <td>
+                                {{numbyIndex @key}}
+                            </td>
+                            <td>
+                                <span>{{name}}</span>
+                            </td>
+                            <td>
+                                <span>{{username}}</span>
+                            </td>
+                            <td>
+                                <span>{{decrypt password}}</span>
+                            </td>
+                            <td>
+                                <span>{{parsePrivilege privilege}}</span>
+                            </td>
+                            <td>
+                                <!-- Modal Trigger -->
+                                <a class="modal-trigger" href="#modal{{idUser}}" title="Edit"><i class="material-icons" >mode_edit</i></a>
+                                <a class="modal-trigger red-text" href="#modalDelete{{idUser}}" title="Hapus User"><i class="material-icons" >delete</i></a>
+                            </td>
+                            <!-- Modal Structure -->
+                            <div id="modal{{idUser}}" class="modal">
+                                <form action="" method="post" class="col s12">
+                                    <div class="modal-content">
+                                        <h4>Edit Detail User</h4>
+                                        <div class="divider"></div>
+                                        <div class="row">
+                                            <div class="col s12">
+                                                <div class="row">
+                                                    <div class="input-field col s12 m6 l6">
+                                                        <input class="validate" id="namaUser-{{idUser}}" name="editUser[{{@key}}][nama]" type="text" placeholder="Nama User" value="{{name}}" required>
+                                                        <label for="namaUser-{{idUser}}">Nama User</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6 l6">
+                                                        <input class="validate" id="usernameUser-{{idUser}}" name="editUser[{{@key}}][username]" type="text" placeholder="Username" value="{{username}}" required>
+                                                        <label for="usernameUser-{{idUser}}">Username</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6 l6">
+                                                        <input class="validate" id="passwordUser-{{idUser}}" name="editUser[{{@key}}][password]" type="password" placeholder="Password" value="{{decrypt password}}" required>
+                                                        <label for="passwordUser">Password</label>
+                                                    </div>
+                                                    <div class="input-field col s12 m6 l6">
+                                                        <select id="privilegeUser-{{idUser}}" name="editUser[{{@key}}][privilege]" required>
+                                                            <option value="" disabled>Pilih Privilege</option>
+                                                            {{#compare privilege "0" operator="=="}}
+                                                                <option value="2" selected>User</option>
+                                                                <option value="1">Admin</option>
+                                                            {{else}}
+                                                                <option value="2">User</option>
+                                                                <option value="1" selected>Admin</option>
+                                                            {{/compare}}
+                                                        </select>
+                                                        <label for="privilegeUser-{{idUser}}">User Privilege</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="col s12 mb-20 mr-30">
+                                            <button name="editUser[{{@key}}][btnUpdate]" value="{{idUser}}" class="waves-effect waves-green blue darken-3 btn">Submit</button>
+                                            <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- Modal Structure -->
+                            <div id="modalDelete{{idUser}}" class="modal">
+                                <form action="" method="post" class="col s12">
+                                    <div class="modal-content">
+                                        <h4>Hapus User</h4>
+                                        <div class="divider"></div>
+                                        <div class="row">
+                                            <div class="col s12 mt-30">
+                                                <div class="row">
+                                                    <span>Apakah anda yakin menghapus user ini ?</span><br>
+                                                    <span>Nama  : {{name}}</span><br>
+                                                    <span>Privilege : {{parsePrivilege privilege}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="col s12 mb-20 mr-30">
+                                            <button name="deleteUser[{{@key}}][btnDelete]" value="{{idUser}}" class="waves-effect waves-green red darken-3 btn">Delete</button>
+                                            <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            <!--</form>-->
+        </div>
+    </div>
+</div>

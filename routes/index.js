@@ -915,4 +915,36 @@ router.get('/report-all', function(req, res, next) {
         });
 });
 
+/* GET logout page. */
+router.get('/logout', function(req, res) {
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
+        console.log("Not Logged");
+        res.redirect('/portal-auth');
+    }else {
+        req.session.destroy(function(err) {
+            res.redirect('/portal-auth');
+        })
+    }
+});
+
+/* GET logout page. */
+router.get('/user', function(req, res) {
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
+        console.log("Not Logged");
+        res.redirect('/portal-auth');
+    }else {
+        agenPulsaConn.query("SELECT * FROM db_agen_pulsa.user  " +
+            "ORDER BY privilege").then(function(list) {
+            //console.log(reports);
+            res.render('user', {
+                title: 'User Management',
+                rowList: list
+            });
+        }).catch(function(error){
+            //logs out the error
+            console.error(error);
+        });
+    }
+});
+
 module.exports = router;

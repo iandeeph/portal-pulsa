@@ -39,9 +39,15 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use(function(req,res,next){
+    res.locals.session = req.session;
+    next();
+});
+
 app.use('/', routes);
 app.use('/inventory', inventory);
 app.use('/portal-auth', login);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

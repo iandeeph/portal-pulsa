@@ -1,6 +1,7 @@
 var moment          = require('moment');
 var _               = require('lodash');
 var currencyFormatter = require('currency-formatter');
+var crypto          = require('crypto');
 
 exports.fullDate = function (date) {
     var parse = "";
@@ -206,4 +207,14 @@ exports.compare = function (lvalue, rvalue, options) {
         return options.inverse(this);
     }
 
+};
+
+exports.decrypt = function (password) {
+    //console.log(password);
+    var mykey = crypto.createDecipheriv('rc4', 'Cermat123Hebat', '');
+    var mystr = mykey.update(password, 'binary', 'utf8');
+    mystr += mykey.final('binary');
+    //console.log(mystr);
+
+    return mystr;
 };
