@@ -1,11 +1,12 @@
-var express = require('express');
-var router = express.Router();
-var _ = require('lodash');
-var mysql = require('promise-mysql');
-var Promise = require('bluebird');
-var moment = require('moment');
-var utils = require('../utils');
-var currencyFormatter = require('currency-formatter');
+var express             = require('express');
+var router              = express.Router();
+var _                   = require('lodash');
+var mysql               = require('promise-mysql');
+var Promise             = require('bluebird');
+var moment              = require('moment');
+var utils               = require('../utils');
+var currencyFormatter   = require('currency-formatter');
+var crypto              = require('crypto');
 
 var NO_AGEN = "08562699002";
 //var NO_AGEN = "081514344606";
@@ -48,6 +49,30 @@ function handleDisconnect() {
 }
 
 handleDisconnect();
+
+function capitalizeFirstLetter(str) {
+    var words = "";
+    if (!_.isEmpty(str)){
+        words = str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    }else{
+        words = "";
+    }
+    return words;
+}
+
+function encryptPassword(password) {
+    var words = "";
+    var mykey = "";
+    var mystr = "";
+    if (!_.isEmpty(password)){
+        mykey = crypto.createCipher('aes-128-cbc', 'Cermat123hebat');
+        mystr = mykey.update(password, 'utf8', 'hex');
+        mystr += mykey.final('hex');
+    }else{
+        mystr = "";
+    }
+    return mystr;
+}
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -927,7 +952,7 @@ router.get('/logout', function(req, res) {
     }
 });
 
-/* GET logout page. */
+/* GET user page. */
 router.get('/user', function(req, res) {
     if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Not Logged");
@@ -944,6 +969,102 @@ router.get('/user', function(req, res) {
             //logs out the error
             console.error(error);
         });
+    }
+});
+
+/* POST user page. */
+router.post('/user', function(req, res) {
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
+        console.log("Not Logged");
+        res.redirect('/portal-auth');
+    }else {
+        var post = req.body || {};
+        var nama = "";
+        var username = "";
+        var password = "";
+        var privilege = "";
+        var arrayQueryValue = [];
+        var queryString = "";
+        var mainBody = "";
+        var postButton = "";
+        console.log(post);
+        if (!_.isUndefined(req.body.userButton)){ //TAMBAH USER BARU
+            //{ addUser:
+            //{ name: 'asdasd',
+            //    username: 'asdsadasd',
+            //    password: 'asdas',
+            //    privilege: '2' },
+            //    userButton: 'addUser' }
+            //console.log(encryptPassword(mainBody.password));
+            mainBody = req.body.addUser;
+            nama = capitalizeFirstLetter(mainBody.name);
+            username = mainBody.username;
+            password = encryptPassword(mainBody.password);
+            privilege = mainBody.privilege;
+
+            //laporan: iduser, name, username, password, privilege
+            arrayQueryValue.push([nama, username, password, privilege]);
+            queryString = "INSERT INTO db_agen_pulsa.user " +
+                "(name, username, password, privilege) " +
+                "VALUES ?";
+
+            //console.log(arrayQueryValue);
+
+            return agenPulsaConn.query(queryString, [arrayQueryValue])
+                .then(function (queryResult) {
+                    res.redirect('/user');
+                }).catch(function (error) {
+                    //logs out the error
+                    console.error(error);
+                });
+
+        }else if (!_.isUndefined(req.body.editUser)){ //EDIT USER
+            //{ editUser:
+            //    [ { nama: 'Arif Kurniawan',
+            //        username: 'arif',
+            //        password: 'c3rmat',
+            //        privilege: '1',
+            //        btnUpdate: '3' } ] }
+            //console.log("post edit user");
+            mainBody = req.body.editUser;
+            return Promise.each(mainBody, function (rowBody) {
+                //laporan: iduser, name, username, password, privilege
+                queryString = "UPDATE db_agen_pulsa.user SET " +
+                "name = '"+ capitalizeFirstLetter(rowBody.name) +"', " +
+                "username = '"+ rowBody.username +"', " +
+                "password = '"+ encryptPassword(rowBody.password) +"', " +
+                "privilege = '"+ rowBody.privilege +"' " +
+                "WHERE iduser = '"+ rowBody.btnUpdate +"'";
+
+                //console.log(arrayQueryValue);
+            }).then(function () {
+                //console.log(queryString);
+                return agenPulsaConn.query(queryString)
+                    .then(function (queryResult) {
+                        res.redirect('/user');
+                    }).catch(function (error) {
+                        //logs out the error
+                        console.error(error);
+                    });
+            });
+
+        }else if (!_.isUndefined(req.body.deleteUser)){
+            //HAPUS USER
+            //{ deleteUser: [ { btnDelete: '1' } ] }
+            //console.log("post delete user");
+            mainBody = req.body.deleteUser;
+            return Promise.each(mainBody, function (rowBody) {
+                queryString = "DELETE FROM db_agen_pulsa.user WHERE iduser = '"+ rowBody.btnDelete +"'";
+            }).then(function (queryResult) {
+            return agenPulsaConn.query(queryString)
+                .then(function (queryResult) {
+                    res.redirect('/user');
+                }).catch(function (error) {
+                    //logs out the error
+                    console.error(error);
+                });
+            });
+        }
     }
 });
 

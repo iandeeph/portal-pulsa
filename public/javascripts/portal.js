@@ -531,3 +531,16 @@ $(document).on('change', '[id=userDivision]', function() {
 $(document).on('click', '[name=cancelInputDivision], [name=cancelInputPosition]', function() {
     window.location = '/inventory/new-hire';
 });
+
+$(document).on('change', '[id^=privilegeUser]', function() {
+    var selectValue = $(this).val();
+    var parentId = $(this).closest('.input-field').attr('data-text');
+    //console.log(selectValue);
+    $('#hiddenPriv-'+parentId).val(selectValue);
+});
+//$(document).on('change', '[name^=editUser]', function() {
+//    var selectValue = $(this).val();
+//    var parentId = $(this).closest('.input-field').attr('data-text');
+//    //console.log(selectValue);
+//    $('#hiddenPriv-'+parentId).val(selectValue);
+//});

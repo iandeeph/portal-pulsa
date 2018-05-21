@@ -105,27 +105,28 @@
                                         <div class="row">
                                             <div class="col s12">
                                                 <div class="row">
-                                                    <div class="input-field col s12 m6 l6">
-                                                        <input class="validate" id="namaUser-{{iduser}}" name="editUser[{{@key}}][nama]" type="text" placeholder="Nama User" value="{{name}}" required>
+                                                    <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
+                                                        <input class="validate" id="namaUser-{{iduser}}" name="editUser[{{@key}}][name]" type="text" placeholder="Nama User" value="{{name}}" required>
                                                         <label for="namaUser-{{iduser}}">Nama User</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6 l6">
+                                                    <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
                                                         <input class="validate" id="usernameUser-{{iduser}}" name="editUser[{{@key}}][username]" type="text" placeholder="Username" value="{{username}}" required>
                                                         <label for="usernameUser-{{iduser}}">Username</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6 l6">
+                                                    <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
                                                         <input class="validate" id="passwordUser-{{iduser}}" name="editUser[{{@key}}][password]" type="password" placeholder="Password" value="{{decrypt password}}" required>
                                                         <label for="passwordUser">Password</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6 l6">
-                                                        <select id="privilegeUser-{{iduser}}" name="editUser[{{@key}}][privilege]" required>
+                                                    <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
+                                                        <input id="hiddenPriv-{{iduser}}"  name="editUser[{{@key}}][privilege]" type="hidden" value="{{privilege}}">
+                                                        <select id="privilegeUser-{{iduser}}" required>
                                                             <option value="" disabled>Pilih Privilege</option>
                                                             {{#compare privilege "2" operator="=="}}
                                                                 <option value="2" selected>User</option>
-                                                                <option value="1">Admin</option>
+                                                                <option value="1">Administrator</option>
                                                             {{else}}
                                                                 <option value="2">User</option>
-                                                                <option value="1" selected>Admin</option>
+                                                                <option value="1" selected>Administrator</option>
                                                             {{/compare}}
                                                         </select>
                                                         <label for="privilegeUser-{{iduser}}">User Privilege</label>
@@ -136,7 +137,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <div class="col s12 mb-20 mr-30">
-                                            <button name="editUser[{{@key}}][btnUpdate]" value="{{iduser}}" class="waves-effect waves-green blue darken-3 btn">Submit</button>
+                                            <button id="editButton-{{iduser}}" name="editUser[{{@key}}][btnUpdate]" value="{{iduser}}" class="waves-effect waves-green blue darken-3 btn">Submit</button>
                                             <a href="#!" class="modal-action modal-close waves-effect waves-teal btn-flat">Cancel</a>
                                         </div>
                                     </div>
