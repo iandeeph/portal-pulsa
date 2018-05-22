@@ -401,7 +401,7 @@ router.get('/pending', function(req, res, next) {
 
 /* GET report page. */
 router.get('/report', function(req, res, next) {
-    agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk " +
+    agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk, user " +
         "FROM report  " +
         "ORDER BY report.tanggal DESC " +
         "LIMIT 100").then(function(reports) {
