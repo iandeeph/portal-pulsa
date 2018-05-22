@@ -78,6 +78,8 @@ exports.parsePrivilege = function(priv){
     if (priv == '1'){
         parse = "Administrator";
     }else if (priv == '2') {
+        parse = "Operator"
+    }else if (priv == '3') {
         parse = "User"
     }else{
         parse = "Error"

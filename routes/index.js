@@ -946,12 +946,15 @@ router.get('/user', function(req, res) {
         console.log("Not Logged");
         res.redirect('/portal-auth');
     }else {
-        agenPulsaConn.query("SELECT * FROM db_agen_pulsa.user  " +
+        var userLogin = req.session.username;
+        var userPriv = req.session.privilege;
+        agenPulsaConn.query("SELECT *, '"+ userLogin +"' userLogin, '"+ userPriv +"' userPriv  FROM db_agen_pulsa.user  " +
             "ORDER BY privilege").then(function(list) {
-            //console.log(reports);
+            //console.log(list);
             res.render('user', {
                 title: 'User Management',
-                rowList: list
+                rowList: list,
+                userPriv: userPriv
             });
         }).catch(function(error){
             //logs out the error

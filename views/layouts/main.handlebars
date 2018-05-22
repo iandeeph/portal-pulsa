@@ -54,6 +54,9 @@
                                 {{#compare session.privilege "1" operator="=="}}
                                     <li><a href="/reload">Isi Pulsa/Paket</a></li>
                                 {{/compare}}
+                                {{#compare session.privilege "2" operator="=="}}
+                                    <li><a href="/reload">Isi Pulsa/Paket</a></li>
+                                {{/compare}}
                                 <li><a href="/sentitems">Pesan Keluar</a></li>
                                 <li><a href="/pending">Pesan Pending</a></li>
                                 <li><a href="/inbox">Pesan Masuk</a></li>
@@ -65,6 +68,9 @@
                 </ul>
             </li>
             {{#compare session.privilege "1" operator="=="}}
+                <li><a href="/user">User Management</a></li>
+            {{/compare}}
+            {{#compare session.privilege "2" operator="=="}}
                 <li><a href="/user">User Management</a></li>
             {{/compare}}
             <li><a href="/logout">Logout ({{session.name}})</a></li>

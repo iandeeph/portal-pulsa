@@ -5,7 +5,9 @@
     <div class="container">
         <div class="col s12 mt-20">
             <span class="font-40">Daftar User Portal</span>
-            <a class="modal-trigger btn-floating btn-large waves-effect waves-light green right mt-20" href="#modal-addUser"title="Tambah Entry"><i class="material-icons">add</i></a>
+            {{#compare userPriv "1" operator="=="}}
+                <a class="modal-trigger btn-floating btn-large waves-effect waves-light green right mt-20" href="#modal-addUser"title="Tambah Entry"><i class="material-icons">add</i></a>
+            {{/compare}}
             <!-- Modal Structure -->
             <div id="modal-addUser" class="modal">
                 <form action="" method="post" class="col s12">
@@ -30,7 +32,8 @@
                                     <div class="input-field col s12 m6 l6">
                                         <select id="privUser" name="addUser[privilege]" required>
                                             <option value="" disabled selected>Pilih Privilege</option>
-                                                <option value="2">User</option>
+                                                <option value="3">User</option>
+                                                <option value="2">Operator</option>
                                                 <option value="1">Admin</option>
                                         </select>
                                         <label for="privUser">User Privilege</label>
@@ -86,9 +89,16 @@
                                 <span>{{parsePrivilege privilege}}</span>
                             </td>
                             <td>
+                            {{#compare userPriv "1" operator="=="}}
                                 <!-- Modal Trigger -->
                                 <a class="modal-trigger" href="#modal{{iduser}}" title="Edit"><i class="material-icons" >mode_edit</i></a>
                                 <a class="modal-trigger red-text" href="#modalDelete{{iduser}}" title="Hapus User"><i class="material-icons" >delete</i></a>
+                            {{else}}
+                                {{#compare userLogin username operator="=="}}
+                                    <!-- Modal Trigger -->
+                                    <a class="modal-trigger" href="#modal{{iduser}}" title="Edit"><i class="material-icons" >mode_edit</i></a>
+                                {{/compare}}
+                            {{/compare}}
                             </td>
                             <!-- Modal Structure -->
                             <div id="modal{{iduser}}" class="modal">
@@ -111,20 +121,53 @@
                                                         <input class="validate" id="passwordUser-{{iduser}}" name="editUser[{{@key}}][password]" type="password" placeholder="Password" value="{{decrypt password}}" required>
                                                         <label for="passwordUser">Password</label>
                                                     </div>
-                                                    <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
-                                                        <input id="hiddenPriv-{{iduser}}"  name="editUser[{{@key}}][privilege]" type="hidden" value="{{privilege}}">
-                                                        <select id="privilegeUser-{{iduser}}" required>
-                                                            <option value="" disabled>Pilih Privilege</option>
-                                                            {{#compare privilege "2" operator="=="}}
-                                                                <option value="2" selected>User</option>
-                                                                <option value="1">Administrator</option>
-                                                            {{else}}
-                                                                <option value="2">User</option>
-                                                                <option value="1" selected>Administrator</option>
-                                                            {{/compare}}
-                                                        </select>
-                                                        <label for="privilegeUser-{{iduser}}">User Privilege</label>
-                                                    </div>
+                                                    {{#compare userPriv "1" operator="=="}}
+                                                        <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
+                                                            <input id="hiddenPriv-{{iduser}}"  name="editUser[{{@key}}][privilege]" type="hidden" value="{{privilege}}">
+                                                            <select id="privilegeUser-{{iduser}}" required>
+                                                                <option value="" disabled>Pilih Privilege</option>
+                                                                {{#compare privilege "3" operator="=="}}
+                                                                    <option value="3" selected>User</option>
+                                                                    <option value="2">Operator</option>
+                                                                    <option value="1">Administrator</option>
+                                                                {{/compare}}
+                                                                {{#compare privilege "2" operator="=="}}
+                                                                    <option value="3">User</option>
+                                                                    <option value="2" selected>Operator</option>
+                                                                    <option value="1">Administrator</option>
+                                                                {{/compare}}
+                                                                {{#compare privilege "1" operator="=="}}
+                                                                    <option value="3">User</option>
+                                                                    <option value="2">Operator</option>
+                                                                    <option value="1" selected>Administrator</option>
+                                                                {{/compare}}
+                                                            </select>
+                                                            <label for="privilegeUser-{{iduser}}">User Privilege</label>
+                                                        </div>
+                                                    {{else}}
+                                                        <div class="input-field col s12 m6 l6" data-text="{{iduser}}">
+                                                            <input id="hiddenPriv-{{iduser}}"  name="editUser[{{@key}}][privilege]" type="hidden" value="{{privilege}}">
+                                                            <select class="disabled" id="privilegeUser-{{iduser}}" disabled>
+                                                                <option value="" disabled>Pilih Privilege</option>
+                                                                {{#compare privilege "3" operator="=="}}
+                                                                    <option value="3" selected>User</option>
+                                                                    <option value="2">Operator</option>
+                                                                    <option value="1">Administrator</option>
+                                                                {{/compare}}
+                                                                {{#compare privilege "2" operator="=="}}
+                                                                    <option value="3">User</option>
+                                                                    <option value="2" selected>Operator</option>
+                                                                    <option value="1">Administrator</option>
+                                                                {{/compare}}
+                                                                {{#compare privilege "1" operator="=="}}
+                                                                    <option value="3">User</option>
+                                                                    <option value="2">Operator</option>
+                                                                    <option value="1" selected>Administrator</option>
+                                                                {{/compare}}
+                                                            </select>
+                                                            <label for="privilegeUser-{{iduser}}">User Privilege</label>
+                                                        </div>
+                                                    {{/compare}}
                                                 </div>
                                             </div>
                                         </div>
