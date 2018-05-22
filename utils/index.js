@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 //source : http://stackoverflow.com/questions/20210522/nodejs-mysql-error-connection-lost-the-server-closed-the-connection
 var db_config = {
-    host         : '1.1.1.200',
+    host         : 'localhost',
     user         : 'root',
     password     : 'c3rmat',
     insecureAuth : 'true',
@@ -61,14 +61,17 @@ exports.findTrunk =  function(phone) {
         'FROM provider ' +
         'WHERE noProvider = "'+ phone +'" ' +
         'limit 1';
+    console.log(trunkQry);
 
     return agenPulsaConn.query(trunkQry).then(function(rowTrunks) {
-        trunk = rowTrunks[0].trunk;
-
-        console.log("lodash echo : "+ _.isUndefined(rowTrunks[0].trunk));
-
-        console.log("Find trunk log : " + trunk);
-
+        console.log(rowTrunks);
+        if (!_.isEmpty(rowTrunks)) {
+            trunk = rowTrunks[0].trunk || "";
+            //console.log("lodash echo : " + _.isUndefined(rowTrunks[0].trunk));
+            //console.log("Find trunk log : " + trunk);
+        }else{
+            trunk = "Nomor Baru";
+        }
         return trunk;
     }).catch(function(error){
         //logs out the error

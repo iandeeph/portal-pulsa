@@ -78,11 +78,9 @@ function encryptPassword(password) {
 router.get('/', function(req, res, next) {
     if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Login Failed");
-        console.log("Username : " + req.session.username);
         res.writeHead(301,
             {Location: '/portal-auth'}
         );
-        res.end();
     }else {
         console.error(req.session.username);
 
@@ -236,31 +234,29 @@ router.get('/paket', function(req, res, next) {
 
 /* GET isi paket page. */
 router.get('/reload', function(req, res, next) {
-    var login = req.session.login || "";
-    if(login == 'loged'){
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
+        console.log("Not Logged");
+        res.redirect('/portal-auth');
+    }else {
         res.render('reload', {
             title: 'Top Up Pulsa'
         });
-    }else {
-        console.log("Login Failed");
-        console.log("Username : " + req.session.username);
-        res.writeHead(301,
-            {Location: '/portal-auth'}
-        );
-        res.end();
     }
 });
 
 //insert data
 router.post('/reload', function(req,res){
-    var login = req.session.login || "";
-    var num = 0;
-    if(login == 'loged'){
+    if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
+        console.log("Not Logged");
+        res.redirect('/portal-auth');
+    }else {
+        var num = 0;
         //console.log(req.body.transactions);
         var arrayQueryValue = [];
         var arrayReportValue = [];
         var trunk = "";
-        var sisaSaldo = "on process";
+        var sisaSaldo = "on proccess";
+        var user = req.session.name;
 
 
         var transactions = Array.prototype.slice.call(req.body.transactions);
@@ -281,7 +277,7 @@ router.post('/reload', function(req,res){
                             largestId = outboxAi;
                         }
                         return Promise.each(transactions, function (transaction) {
-                            console.log(newID[0].ID);
+                            //console.log(newID[0].ID);
                             var trx = transaction.trx;
                             var phone = transaction.phone.replace(/\D/g, '');
                             var untuk = transaction.untuk;
@@ -291,16 +287,15 @@ router.post('/reload', function(req,res){
                             //sisaSaldo = utils.sisaSaldo();
                             //trunk = utils.findTrunk(transaction.phone);
 
-                            console.log("PHONE IS = " + phone);
+                            //console.log("PHONE IS = " + phone);
                             return utils.findTrunk(phone)
                                 .then(function (result) {
-                                    return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
-                                })
-                                .then(function (resultTrunk) {
+                                    console.log(result);
+                                    //return trunk = ((_.isUndefined(result) == false) ? result : "Nomor Baru");
                                     return utils.sisaSaldo()
                                         .then(function (saldo) {
                                             dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-                                            arrayReportValue.push([dateNow, resultTrunk, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk]);
+                                            arrayReportValue.push([dateNow, result, phone, trx, 0, saldo, (saldo - 0), 'pending', 'Via Portal', untuk, user]);
                                         })
                                 })
                                 .catch(function (error) {
@@ -308,28 +303,28 @@ router.post('/reload', function(req,res){
                                     console.error(error);
                                 });
                         }).then(function () {
-                            console.log(
-                                arrayQueryValue,
-                                arrayReportValue //disini udah ga kosong lagi
-                            );
+                            //console.log(
+                            //    arrayQueryValue,
+                            //    arrayReportValue //disini udah ga kosong lagi
+                            //);
                             var queryString = "INSERT INTO db_agen_pulsa.outbox " +
                                 "(DestinationNumber, TextDecoded, CreatorID, ID, Coding) " +
                                 "VALUES ?";
-                            console.log(queryString);
+                            //console.log(queryString);
                             var queryReport = "INSERT INTO db_agen_pulsa.report " +
-                                "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk) " +
+                                "(tanggal, trunk, no, trx, harga, saldo_awal, saldo_akhir, status, proses, untuk, user) " +
                                 "VALUES ?";
-                            console.log(queryReport);
+                            //console.log(queryReport);
                             return agenPulsaConn.query(queryString, [arrayQueryValue])
                                 .then(function (results) {
-                                    console.log(arrayReportValue);
+                                    //console.log(arrayReportValue);
 
                                     return results;
                                 }).then(function (results) {
                                     return agenPulsaConn.query(queryReport, [arrayReportValue])
                                         .then(function (results) {
 
-                                            console.log("Report Log..\n" + arrayReportValue);
+                                            //console.log("Report Log..\n" + arrayReportValue);
 
                                             res.render('reload', {
                                                 message: 'Transaksi berhasil disubmit..!!'
@@ -346,13 +341,6 @@ router.post('/reload', function(req,res){
                 //logs out the error
                 console.error(error);
             });
-    }else {
-        console.log("Login Failed");
-        console.log("Username : " + req.session.username);
-        res.writeHead(301,
-            {Location: '/portal-auth'}
-        );
-        res.end();
     }
 });
 
