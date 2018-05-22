@@ -65,6 +65,8 @@ exports.parseUntuk = function(untuk){
         parse = "Kedoya";
     }else if (untuk == '2') {
         parse = "Biak"
+    }else if (untuk == '3') {
+        parse = "Daan Mogot"
     }else{
         parse = "Other"
     }
