@@ -78,10 +78,8 @@ function encryptPassword(password) {
 router.get('/', function(req, res, next) {
     if(_.isUndefined(req.session.login) || req.session.login != 'loged'){
         console.log("Login Failed");
-        res.writeHead(301,
-            {Location: '/portal-auth'}
-        );
-    }else {
+        res.redirect('/portal-auth');
+    }else{
         console.error(req.session.username);
 
         agenPulsaConn.query('SELECT * FROM provider order by length(namaProvider), namaProvider').then(function (rows) {
