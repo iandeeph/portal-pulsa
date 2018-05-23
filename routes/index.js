@@ -978,7 +978,7 @@ router.post('/user', function(req, res) {
         var queryString = "";
         var mainBody = "";
         var postButton = "";
-        console.log(post);
+        //console.log(post);
         if (!_.isUndefined(req.body.userButton)){ //TAMBAH USER BARU
             //{ addUser:
             //{ name: 'asdasd',
@@ -1045,7 +1045,7 @@ router.post('/user', function(req, res) {
             //console.log("post delete user");
             mainBody = req.body.deleteUser;
             return Promise.each(mainBody, function (rowBody) {
-                queryString = "DELETE FROM db_agen_pulsa.user WHERE iduser = '"+ rowBody.btnDelete +"'";
+                queryString = "UPDATE db_agen_pulsa.user SET status = 'Deactive' WHERE iduser = '"+ rowBody.btnDelete +"'";
             }).then(function (queryResult) {
             return agenPulsaConn.query(queryString)
                 .then(function (queryResult) {
