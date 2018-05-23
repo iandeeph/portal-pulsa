@@ -56,7 +56,7 @@ router.post('/', function(req, res, next) {
     mystr += mykey.final('hex');
     //console.log(mystr);
 
-    agenPulsaConn.query('SELECT * FROM user').then(function(users) {
+    agenPulsaConn.query('SELECT * FROM user WHERE status = "Active"').then(function(users) {
         //console.log(users);
         var loginPromise = new Promise(function (resolve, reject) {
             resolve(_.filter(users, {'username' : postUsername , 'password' : mystr}));
