@@ -222,3 +222,15 @@ exports.decrypt = function (password) {
 
     return mystrdec;
 };
+
+exports.numberFormat = function (number) {
+    var parse = 0;
+    number = parseInt(number);
+    //console.log(number);
+    if(_.isNumber(number)){
+        parse = Intl.NumberFormat('en-IND').format(parseInt(number));
+    }else{
+        parse = 0;
+    }
+    return parse;
+};
