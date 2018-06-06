@@ -3,11 +3,101 @@
 {{/section}}
 {{error}}
 <div class="almost-full">
-    <div class="col s12">
-        <span class="font-40">Laporan Pemakaian Saldo</span>
-    </div>
+    <form action="" method="post">
+        <div class="row">
+            <div class="col s12">
+                <div class="col s6 left-align mt-10">
+                    <span class="font-40">Laporan Pemakaian Saldo</span>
+                </div>
+                <div class="col s6 right-align mt-30">
+                    <a name="downloadCsv" id="downloadCsv" class="waves-effect waves-light btn-floating blue darken-3 right ml-10" title="Export to CSV"><i class="material-icons">file_download</i></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <ul class="collapsible col s12" data-collapsible="expandable">
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="material-icons">date_range</i>
+                            Filter periode laporan
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="row">
+                                <div class="col s12 mb-30">
+                                    <div class="input-field col s12 m4 l4">
+                                        <label for="startPeriode">Dari Tanggal : </label>
+                                        <input id="startPeriode" name="report[start]" type="text" class="datepicker" value="{{filterDate.start}}">
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <label for="endPeriode">Sampai Tanggal : </label>
+                                        <input id="endPeriode" name="report[end]" type="text" class="datepicker" value="{{filterDate.end}}">
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <label for="trunk">Trunk</label>
+                                        <input id="trunk" name="report[trunk]" type="text" class="validate" value="{{filterDate.end}}">
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <label for="phone">No. Telp</label>
+                                        <input id="phone" name="report[phone]" type="text" class="validate" value="{{filterDate.end}}">
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <label for="trx">Transaksi</label>
+                                        <input id="trx" name="report[trx]" type="text" class="validate" value="{{filterDate.end}}">
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <select id="filterStatus" name="report[status]" multiple>
+                                            <option class="disabled" disabled selected>Pilih Status</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="Sent">Sent</option>
+                                            <option value="SUKSES">SUKSES</option>
+                                            <option value="Failed">Pending</option>
+                                            <option value="Done">Done</option>
+                                        </select>
+                                        <label for="filterStatus">Pilih Status</label>
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <select id="filterProses" name="report[proses]" multiple>
+                                            <option class="disabled" disabled selected>Pilih Proses By</option>
+                                            <option value="Via Portal">Via Portal</option>
+                                            <option value="Via System">Via System</option>
+                                        </select>
+                                        <label for="filterProses">Pilih Proses By</label>
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <select id="filterUntuk" name="report[untuk]" multiple>
+                                            <option class="disabled" disabled selected>Pilih Untuk</option>
+                                            <option value="1">Kedoya</option>
+                                            <option value="2">Biak</option>
+                                            <option value="3">Daan Mogot</option>
+                                        </select>
+                                        <label for="filterUntuk">Pilih Untuk</label>
+                                    </div>
+                                    <div class="input-field col s12 m4 l4">
+                                        <select id="filterUser" name="report[user]" multiple>
+                                            <option class="disabled" disabled selected>Pilih User</option>
+                                            {{#each groupedUser}}
+                                                <option class="{{disabled}}" value="{{@key}}" {{selected}} {{disabled}}>{{@key}}</option>
+                                            {{/each}}
+                                        </select>
+                                        <label for="filterUser">Pilih User</label>
+                                    </div>
+                                    <div class="input-field col s12 right-align">
+                                        <button type="submit" name="dateFilterBtn" id="dateFilterBtn" class="waves-effect waves-light btn blue darken-3 right">tampilkan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
     <div class="col s12 mt-30 mb-20 home-table">
-        <table class="bordered">
+        <div class="col s12">
+            <span class="font-20 red-text">{{message}}</span>
+        </div>
+        <table class="bordered" id="reportTable">
             <thead>
                 <tr class="hide-on-med-and-down">
                     <th width="10%" >Tanggal</th>

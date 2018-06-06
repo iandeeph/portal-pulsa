@@ -46,6 +46,15 @@ $(document).ready(function() {
     );
     $('select').material_select();
     $('.tooltipped').tooltip({delay: 50});
+    $('.datepicker').pickadate({
+        selectMonths: true, // Creates a dropdown to control month
+        selectYears: 15, // Creates a dropdown of 15 years to control year,
+        today: 'Today',
+        clear: 'Clear',
+        close: 'Ok',
+        closeOnSelect: true, // Close upon selecting a date,
+        container: undefined // ex. 'body' will append picker to body
+    });
     $("#btnAddTrx").click(function () {
         $("#trxBlock").append('' +
             '<div class="input-field col s2 addedTrx'+ numFieldTrx +'">' +
@@ -367,6 +376,15 @@ $(document).ready(function() {
             endingTop: '10%' // Ending top style attribute
         }
     );
+
+    $("#downloadCsv").click(function () {
+        var $table = $("#reportTable");
+        var csv = $table.table2CSV({
+            delivery: 'value'
+        });
+        window.location.href = 'data:text/csv;charset=UTF-8,'
+            + encodeURIComponent(csv);
+    });
 });
 
 $(document).on('click', '.duplicateButton', function() {

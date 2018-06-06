@@ -402,15 +402,145 @@ router.get('/report', function(req, res, next) {
     agenPulsaConn.query("SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk, user " +
         "FROM report  " +
         "ORDER BY report.tanggal DESC " +
-        "LIMIT 100").then(function(reports) {
+        "LIMIT 100")
+        .then(function(reports) {
         //console.log(reports);
-        res.render('report', {
-            title: 'Laporan Pemakaian Saldo',
-            reports: reports
-        });
+        agenPulsaConn.query("SELECT * FROM user")
+            .then(function(results) {
+                res.render('report', {
+                    title: 'Laporan Pemakaian Saldo',
+                    groupedUser: _.groupBy(results, 'name'),
+                    reports: reports
+                });
+            }).catch(function(error){
+                //logs out the error
+                console.error(error);
+            });
     }).catch(function(error){
         //logs out the error
         console.error(error);
+    });
+});
+
+/* POST report page. */
+router.post('/report', function(req, res, next) {
+    console.log(req.body);
+    var postUntuk = req.body.report.untuk || "";
+    var postProses = req.body.report.proses || "";
+    var postStatus = req.body.report.status || "";
+    var postUser = req.body.report.user || "";
+    var dateStart = req.body.report.start || {};
+    var dateEnd = req.body.report.end || {};
+    var postDateStart = (!_.isEmpty(dateStart))?moment(new Date(dateStart)).format("YYYY-MM-DD 00:00:00"): moment().format("2008-MM-DD 00:00:00");
+    var postDateEnd = (!_.isEmpty(dateStart))?moment(new Date(dateEnd)).format("YYYY-MM-DD 23:59:59"): moment().format("YYYY-MM-DD 23:59:59");
+    var postTrunk = req.body.report.trunk || "";
+    var postPhone = req.body.report.phone || "";
+    var postTrx = req.body.report.trx || "";
+    var arrPostUntuk = [];
+    var arrPostProses = [];
+    var arrPostStatus = [];
+    var arrPostUser = [];
+    var queryUntuk = [];
+    var queryProses = [];
+    var queryStatus = [];
+    var queryUser = [];
+    var untukQueryTxt = "";
+    var prosesQueryTxt = "";
+    var statusQueryTxt = "";
+    var userQueryTxt = "";
+    var promiseUntuk = new Promise(function(resolve, reject) {
+        if(!_.isEmpty(postUntuk)) {
+            if (_.isArray(postUntuk)) {
+                arrPostUntuk = postUntuk;
+            } else {
+                arrPostUntuk = [postUntuk];
+            }
+            arrPostUntuk.forEach(function (untuk) {
+                queryUntuk.push("untuk = '" + untuk + "'");
+            });
+            untukQueryTxt = "(" + queryUntuk.toString().replace(/,/gi, " OR ") + ") AND ";
+        }else{
+            untukQueryTxt = "";
+        }
+        resolve(untukQueryTxt);
+    });
+    var promiseProses = new Promise(function(resolve, reject) {
+        if(!_.isEmpty(postProses)) {
+            if (_.isArray(postProses)) {
+                arrPostProses = postProses;
+            } else {
+                arrPostProses = [postProses];
+            }
+            arrPostProses.forEach(function (proses) {
+                queryProses.push("proses = '" + proses + "'");
+            });
+            prosesQueryTxt = "(" + queryProses.toString().replace(/,/gi, " OR ") + ") AND ";
+        }else{
+            prosesQueryTxt = "";
+        }
+        resolve(prosesQueryTxt);
+    });
+    var promiseStatus = new Promise(function(resolve, reject) {
+        if(!_.isEmpty(postStatus)) {
+            if (_.isArray(postStatus)) {
+                arrPostStatus = postStatus;
+            } else {
+                arrPostStatus = [postStatus];
+            }
+            arrPostStatus.forEach(function (status) {
+                queryStatus.push("status = '" + status + "'");
+            });
+            statusQueryTxt = "(" + queryStatus.toString().replace(/,/gi, " OR ") + ") AND ";
+        }else{
+            statusQueryTxt = "";
+        }
+        resolve(statusQueryTxt);
+    });
+    var promiseUser = new Promise(function(resolve, reject) {
+        if(!_.isEmpty(postUser)) {
+            if (_.isArray(postUser)) {
+                arrPostUser = postUser;
+            } else {
+                arrPostUser = [postUser];
+            }
+            arrPostUser.forEach(function (user) {
+                queryUser.push("user = '" + user + "'");
+            });
+            userQueryTxt = "(" + queryUser.toString().replace(/,/gi, " OR ") + ") AND ";
+        }else{
+            userQueryTxt = "";
+        }
+        resolve(userQueryTxt);
+    });
+
+    Promise.all([promiseUntuk, promiseProses, promiseStatus, promiseUser])
+        .then(function(values) {
+            var queryString = "SELECT idreport as id, DATE_FORMAT(tanggal, '%e %b %Y - %k:%i') as date, trunk as trunk, replace(replace(no,'+62','0'), '+628', '08') as number,harga, saldo_awal, saldo_akhir, trx, status, proses, untuk, user " +
+                "FROM report " +
+                "WHERE (tanggal between '"+ postDateStart +"' AND '"+ postDateEnd +"') AND " +
+                untukQueryTxt.toString() +" "+ prosesQueryTxt.toString() +" "+ statusQueryTxt.toString() +" "+ userQueryTxt.toString() +" " +
+                "trunk like '%"+ postTrunk +"%' AND no like '%"+ postPhone +"%' AND trx like '%"+ postTrx +"%' " +
+                "ORDER BY report.tanggal DESC " +
+                "limit 1000";
+            agenPulsaConn.query(queryString)
+                .then(function(reports) {
+                    console.log(queryString);
+                    agenPulsaConn.query("SELECT * FROM user")
+                        .then(function(results) {
+                            res.render('report', {
+                                title: 'Laporan Pemakaian Saldo',
+                                groupedUser: _.groupBy(results, 'name'),
+                                message: "Menampilkan paling banyak 1000 baris..!!",
+                                reports: reports
+                            });
+                        }).catch(function(error){
+                            //logs out the error
+                            console.error(error);
+                        });
+                }).catch(function(error){
+                    //logs out the error
+                    console.error(error);
+                });
     });
 });
 
